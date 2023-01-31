@@ -3,5 +3,5 @@ game:
   sound: false
 
 board:
-  type: "board_plain_02.png"
+  image: "board_plain_02.png"
   size: 800 # pixels
