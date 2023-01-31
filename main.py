@@ -49,8 +49,9 @@ class KnightFight:
                     if clicked_piece:
                         # save starting position and start drag-drop event
                         self.dragged_piece = clicked_piece
-                        self.drag_offset = (pos[0] - clicked_piece.piece_rect.x,
-                                            pos[1] - clicked_piece.piece_rect.y)
+                        self.drag_offset = (
+                            pos[0] - clicked_piece.piece_rect.x,
+                            pos[1] - clicked_piece.piece_rect.y)
                 elif event.type == pygame.MOUSEMOTION:
                     # update piece position if drag drop is active
                     if self.dragged_piece:
@@ -63,7 +64,6 @@ class KnightFight:
                     # end drag and drop event
                     if self.dragged_piece:
                         # update piece position on board
-                        pos = pygame.mouse.get_pos()
                         self.dragged_piece.move_to(board.get_grid_at(pos))
                         self.dragged_piece = None
                         self.drag_offset = None

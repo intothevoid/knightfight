@@ -103,8 +103,6 @@ class Board:
     def get_grid_at(self, pos: Tuple[int, int]) -> Optional[GridPosition]:
         x, y = pos
 
-        print(f"x:{x} y:{y}")
-
         if x < 40 or y < 40:  # margin on left is 40 pixels
             return None
         if x > 740 or y > 740:  # margin on right is 40 pixels
@@ -112,7 +110,5 @@ class Board:
 
         col = (x - 40) // 90  # each square is 90 pixels
         row = (y - 40) // 90
-
-        print(f"col:{col} row:{row}")
 
         return GridPosition(row, col)

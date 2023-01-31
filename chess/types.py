@@ -23,5 +23,8 @@ class PieceColour:
 @dataclass
 class GridPosition:
     def __init__(self, row, col):
-        self.row = None
-        self.col = None
+        self.row = row
+        self.col = col
+
+    def __str__(self) -> str:
+        return f"GridPosition row:{self.row} col:{self.col}"

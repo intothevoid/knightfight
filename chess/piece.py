@@ -66,12 +66,13 @@ class Piece:
         self.piece_rect.topleft = piece_pos
 
     def move_to(self, new_pos: GridPosition):
-        print(f"New position: {new_pos.row}:{new_pos.col}")
 
-        if new_pos == None or new_pos.col == None or new_pos.col == None:
+        if new_pos is None or new_pos.col is None or new_pos.col is None:
             return
 
         self.grid_pos = new_pos
+
+        print(f"New position: {new_pos.row}:{new_pos.col}")
 
         # margin is 40 pixels
         # each square is 90x90 pixels
