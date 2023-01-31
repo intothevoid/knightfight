@@ -5,7 +5,7 @@ A game of Chess written using Pygame. Let the fight begin!
 ## Installation
 
 ```bash
-pip install -r requirements
+pip install -r requirements.txt
 ```
 
 ## Usage

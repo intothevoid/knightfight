@@ -1,0 +1,7 @@
+game:
+  players: 1 # valid values are 1, 2
+  sound: false
+
+board:
+  type: "board_plain_02.png"
+  size: 800 # pixels
