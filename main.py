@@ -68,6 +68,7 @@ class KnightFight:
                         self.dragged_piece = None
                         self.drag_offset = None
 
+            # update board and pieces
             board.render()
             pygame.display.update()
 

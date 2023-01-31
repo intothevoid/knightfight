@@ -8,7 +8,6 @@ from chess.piece import Piece
 from config import config
 from chess.types import PieceType, PieceColour
 from chess.types import GridPosition
-from ai.movement import is_move_valid
 
 
 class Board:
@@ -74,18 +73,6 @@ class Board:
                 return piece
 
         return None
-
-    def move_piece(self, piece: Piece, new_pos: GridPosition) -> None:
-        old_pos = piece.grid_pos
-
-        # check if move is valid
-        if is_move_valid(old_pos, new_pos, piece.piece_type):
-            piece.piece_pos = new_pos
-            piece.piece_rect.topleft = new_pos
-        else:
-            # move is invalid
-            # TODO
-            pass
 
     def render(self) -> None:
         self.window_surface.blit(self.board_image, self.board_rect)

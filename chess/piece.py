@@ -6,6 +6,7 @@ import pygame
 from dataclasses import dataclass
 from typing import Tuple
 from chess.types import PieceType, PieceColour, GridPosition
+from ai.movement import is_move_valid
 from config import config
 from helpers.log import LOGGER
 
@@ -66,19 +67,26 @@ class Piece:
         self.piece_rect = self.piece_image.get_rect()
         self.piece_rect.topleft = piece_pos
 
-    def move_to(self, new_pos: GridPosition):
+    def move_to(self, new_grid_pos: GridPosition):
 
-        if new_pos is None or new_pos.col is None or new_pos.col is None:
+        if new_grid_pos is None or new_grid_pos.row is None or new_grid_pos.col is None:
             return
 
-        self.grid_pos = new_pos
+        # check if move is valid
+        if not is_move_valid(self.grid_pos, new_grid_pos,
+                             self.piece_type, self.piece_colour):
+            # go back to old position
+            self.piece_rect.topleft = (
+                40 + self.grid_pos.col * 90, 40 + self.grid_pos.row * 90)
+        else:
+            self.grid_pos = new_grid_pos
 
-        # margin is 40 pixels
-        # each square is 90x90 pixels
-        self.piece_rect.topleft = (40 + new_pos.col * 90,
-                                   40 + new_pos.row * 90)
-        LOGGER.debug(
-            f"{self.piece_colour} {self.piece_type} moved to : {new_pos.row}:{new_pos.col}")
+            # margin is 40 pixels
+            # each square is 90x90 pixels
+            self.piece_rect.topleft = (40 + new_grid_pos.col * 90,
+                                       40 + new_grid_pos.row * 90)
+            LOGGER.debug(
+                f"{self.piece_colour} {self.piece_type} moved to: {new_grid_pos.row}: {new_grid_pos.col}")
 
     def render(self) -> None:
         self.window_surface.blit(self.piece_image, self.piece_rect)
