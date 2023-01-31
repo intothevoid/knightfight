@@ -11,24 +11,27 @@ from config import config
 from helpers.log import LOGGER
 
 
-def get_piece_from_strip(image_file: str,
-                         piece_type: PieceType) -> pygame.Surface:
+def get_piece_from_strip(image_file: str, piece_type: PieceType) -> pygame.Surface:
 
     strip_image = pygame.image.load(f"assets/{image_file}")
     piece_width = int(strip_image.get_width() / 6)
     piece_height = int(strip_image.get_height())
 
     # Get the index of the desired piece in the strip
-    piece_index = {"pawn": 0, "knight": 1, "rook": 2,
-                   "bishop": 3, "queen": 4, "king": 5}[piece_type.lower()]
+    piece_index = {
+        "pawn": 0,
+        "knight": 1,
+        "rook": 2,
+        "bishop": 3,
+        "queen": 4,
+        "king": 5,
+    }[piece_type.lower()]
     piece_x = piece_width * piece_index
 
     # Create a new surface to store the desired piece
-    piece_image = pygame.Surface(
-        (piece_width, piece_height), pygame.SRCALPHA)
+    piece_image = pygame.Surface((piece_width, piece_height), pygame.SRCALPHA)
 
-    piece_image.blit(strip_image, (0, 0), (piece_x, 0,
-                     piece_width, piece_height))
+    piece_image.blit(strip_image, (0, 0), (piece_x, 0, piece_width, piece_height))
 
     # create mask for transparent background
     piece_mask = pygame.mask.from_surface(piece_image)
@@ -44,7 +47,7 @@ class Piece:
         piece_type: PieceType,
         piece_colour: PieceColour,
         piece_pos: Tuple[int, int],
-        grid_pos: GridPosition
+        grid_pos: GridPosition,
     ) -> None:
         size_x = config.APP_CONFIG["piece"]["size_x"]
         size_y = config.APP_CONFIG["piece"]["size_y"]
@@ -56,16 +59,27 @@ class Piece:
 
         if piece_colour == PieceColour.White:
             self.piece_image, _ = get_piece_from_strip(
-                config.APP_CONFIG["board"]["white_pieces"], piece_type)
+                config.APP_CONFIG["board"]["white_pieces"], piece_type
+            )
         else:
             self.piece_image, _ = get_piece_from_strip(
-                config.APP_CONFIG["board"]["black_pieces"], piece_type)
+                config.APP_CONFIG["board"]["black_pieces"], piece_type
+            )
 
-        self.piece_image = pygame.transform.scale(
-            self.piece_image, (size_x, size_y))
+        self.piece_image = pygame.transform.scale(self.piece_image, (size_x, size_y))
 
         self.piece_rect = self.piece_image.get_rect()
         self.piece_rect.topleft = piece_pos
+
+    def __eq__(self, other):
+        """
+        Check if two pieces are equal
+        """
+        return (
+            self.piece_type == other.piece_type
+            and self.piece_colour == other.piece_colour
+            and self.grid_pos == other.grid_pos
+        )
 
     def move_to(self, new_grid_pos: GridPosition):
 
@@ -73,20 +87,26 @@ class Piece:
             return
 
         # check if move is valid
-        if not is_move_valid(self.grid_pos, new_grid_pos,
-                             self.piece_type, self.piece_colour):
+        if not is_move_valid(
+            self.grid_pos, new_grid_pos, self.piece_type, self.piece_colour
+        ):
             # go back to old position
             self.piece_rect.topleft = (
-                40 + self.grid_pos.col * 90, 40 + self.grid_pos.row * 90)
+                40 + self.grid_pos.col * 90,
+                40 + self.grid_pos.row * 90,
+            )
         else:
             self.grid_pos = new_grid_pos
 
             # margin is 40 pixels
             # each square is 90x90 pixels
-            self.piece_rect.topleft = (40 + new_grid_pos.col * 90,
-                                       40 + new_grid_pos.row * 90)
+            self.piece_rect.topleft = (
+                40 + new_grid_pos.col * 90,
+                40 + new_grid_pos.row * 90,
+            )
             LOGGER.debug(
-                f"{self.piece_colour} {self.piece_type} moved to: {new_grid_pos.row}: {new_grid_pos.col}")
+                f"{self.piece_colour} {self.piece_type} moved to: {new_grid_pos.row}: {new_grid_pos.col}"
+            )
 
     def render(self) -> None:
         self.window_surface.blit(self.piece_image, self.piece_rect)

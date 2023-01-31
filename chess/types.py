@@ -28,3 +28,11 @@ class GridPosition:
 
     def __str__(self) -> str:
         return f"GridPosition row:{self.row} col:{self.col}"
+
+    def __eq__(self, other) -> bool:
+        """
+        Compare two GridPosition objects
+        """
+        if isinstance(other, GridPosition):
+            return self.row == other.row and self.col == other.col
+        return False
