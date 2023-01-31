@@ -42,7 +42,7 @@ class Board:
                     piece_colour = PieceColour.Empty
 
                 if piece_type != PieceType.Empty:
-                    piece_pos = (col * 100, row * 100)
+                    piece_pos = (40 + col * 90, 40 + row * 90)
                     piece = Piece(self.window_surface, piece_type,
                                   piece_colour, piece_pos)
 

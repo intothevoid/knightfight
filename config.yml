@@ -4,8 +4,10 @@ game:
 
 board:
   image: "board_plain_02.png"
+  white_pieces: "WhitePieces.png"
+  black_pieces: "BlackPieces.png"
   size: 800 # pixels
 
 piece:
-  size_x: 50
-  size_y: 100
+  size_x: 90
+  size_y: 90
