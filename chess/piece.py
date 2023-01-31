@@ -3,7 +3,9 @@ The piece class to capture the state of the chess pieces.
 """
 
 import pygame
-from chess.types import PieceType, PieceColour
+from dataclasses import dataclass
+from typing import Tuple
+from chess.types import PieceType, PieceColour, GridPosition
 from config import config
 
 
@@ -32,13 +34,15 @@ def get_piece_from_strip(image_file: str,
     return piece_image, piece_mask
 
 
+@dataclass
 class Piece:
     def __init__(
         self,
         window_surface,
         piece_type: PieceType,
         piece_colour: PieceColour,
-        piece_pos,
+        piece_pos: Tuple[int, int],
+        grid_pos: GridPosition
     ) -> None:
         size_x = config.APP_CONFIG["piece"]["size_x"]
         size_y = config.APP_CONFIG["piece"]["size_y"]
@@ -46,6 +50,7 @@ class Piece:
         self.piece_type = piece_type
         self.piece_colour = piece_colour
         self.piece_pos = piece_pos
+        self.grid_pos = grid_pos
 
         if piece_colour == PieceColour.White:
             self.piece_image, _ = get_piece_from_strip(

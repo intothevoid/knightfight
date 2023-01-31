@@ -6,6 +6,8 @@ import pygame
 from chess.piece import Piece
 from config import config
 from chess.types import PieceType, PieceColour
+from chess.types import GridPosition
+from ai.movement import is_move_valid
 
 
 class Board:
@@ -31,10 +33,10 @@ class Board:
         # initialize the pieces
         for row in range(8):
             for col in range(8):
-                if row in [0, 1]:
+                if row == 1:
                     piece_type = PieceType.Pawn
                     piece_colour = PieceColour.Black
-                elif row in [6, 7]:
+                elif row == 6:
                     piece_type = PieceType.Pawn
                     piece_colour = PieceColour.White
                 else:
@@ -42,9 +44,10 @@ class Board:
                     piece_colour = PieceColour.Empty
 
                 if piece_type != PieceType.Empty:
+                    # add 40 pixels for border, 90x90 pixels is size of one square
                     piece_pos = (40 + col * 90, 40 + row * 90)
                     piece = Piece(self.window_surface, piece_type,
-                                  piece_colour, piece_pos)
+                                  piece_colour, piece_pos, GridPosition(row, col))
 
                     self.add_piece(piece)
 
@@ -61,9 +64,17 @@ class Board:
 
         return None
 
-    def move_piece(self, piece: Piece, new_pos) -> None:
-        piece.piece_pos = new_pos
-        piece.piece_rect.topleft = new_pos
+    def move_piece(self, piece: Piece, new_pos: GridPosition) -> None:
+        old_pos = piece.grid_pos
+
+        # check if move is valid
+        if is_move_valid(old_pos, new_pos, piece.piece_type):
+            piece.piece_pos = new_pos
+            piece.piece_rect.topleft = new_pos
+        else:
+            # move is invalid
+            # TODO
+            pass
 
     def render(self) -> None:
         self.window_surface.blit(self.board_image, self.board_rect)
