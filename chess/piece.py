@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from typing import Tuple
 from chess.types import PieceType, PieceColour, GridPosition
 from config import config
+from helpers.log import LOGGER
 
 
 def get_piece_from_strip(image_file: str,
@@ -72,12 +73,12 @@ class Piece:
 
         self.grid_pos = new_pos
 
-        print(f"New position: {new_pos.row}:{new_pos.col}")
-
         # margin is 40 pixels
         # each square is 90x90 pixels
         self.piece_rect.topleft = (40 + new_pos.col * 90,
                                    40 + new_pos.row * 90)
+        LOGGER.debug(
+            f"{self.piece_colour} {self.piece_type} moved to : {new_pos.row}:{new_pos.col}")
 
     def render(self) -> None:
         self.window_surface.blit(self.piece_image, self.piece_rect)

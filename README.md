@@ -2,7 +2,7 @@
 
 A game of Chess written using Pygame. Let the fight begin!
 
-<img src="https://raw.githubusercontent.com/intothevoid/knightfight/main/assets/sshot.png" width="50%" height="50%"></img>
+<img src="https://raw.githubusercontent.com/intothevoid/knightfight/main/assets/sshot.png" width="80%" height="80%"></img>
 
 ## Installation
 
