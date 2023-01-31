@@ -6,9 +6,11 @@ class PieceType:
     Pawn = "Pawn"
     Queen = "Queen"
     Rook = "Rook"
+    Empty = "Empty"
 
 
 # enum for the piece colours
 class PieceColour:
     Black = "B"
     White = "W"
+    Empty = "Empty"

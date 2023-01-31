@@ -5,3 +5,7 @@ game:
 board:
   image: "board_plain_02.png"
   size: 800 # pixels
+
+piece:
+  size_x: 50
+  size_y: 100
