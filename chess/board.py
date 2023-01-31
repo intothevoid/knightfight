@@ -31,25 +31,35 @@ class Board:
 
     def init_pieces(self) -> None:
         # initialize the pieces
-        for row in range(8):
-            for col in range(8):
-                if row == 1:
-                    piece_type = PieceType.Pawn
-                    piece_colour = PieceColour.Black
-                elif row == 6:
-                    piece_type = PieceType.Pawn
-                    piece_colour = PieceColour.White
-                else:
-                    piece_type = PieceType.Empty
-                    piece_colour = PieceColour.Empty
+        starting_positions = {
+            PieceType.Pawn: [
+                (1, 0), (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7),
+                (6, 0), (6, 1), (6, 2), (6, 3), (6, 4), (6, 5), (6, 6), (6, 7)
+            ],
+            PieceType.Knight: [
+                (0, 1), (0, 6),
+                (7, 1), (7, 6)
+            ],
+            PieceType.Rook: [
+                (0, 0), (0, 7),
+                (7, 0), (7, 7)
+            ],
+            PieceType.Bishop: [
+                (0, 2), (0, 5),
+                (7, 2), (7, 5)
+            ],
+            PieceType.Queen: [(0, 3), (7, 3)],
+            PieceType.King: [(0, 4), (7, 4)],
+        }
 
-                if piece_type != PieceType.Empty:
-                    # add 40 pixels for border, 90x90 pixels is size of one square
-                    piece_pos = (40 + col * 90, 40 + row * 90)
-                    piece = Piece(self.window_surface, piece_type,
-                                  piece_colour, piece_pos, GridPosition(row, col))
-
-                    self.add_piece(piece)
+        for piece_type, positions in starting_positions.items():
+            for row, col in positions:
+                piece_colour = PieceColour.Black if row in [
+                    0, 1] else PieceColour.White
+                piece_pos = (40 + col * 90, 40 + row * 90)
+                piece = Piece(self.window_surface, piece_type, piece_colour,
+                              piece_pos, GridPosition(row, col))
+                self.add_piece(piece)
 
     def add_piece(self, piece: Piece) -> None:
         self.pieces.append(piece)
