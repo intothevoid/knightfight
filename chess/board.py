@@ -8,6 +8,7 @@ from chess.piece import Piece
 from config import config
 from chess.types import PieceType, PieceColour
 from chess.types import GridPosition
+from ai.movement import is_move_valid
 
 
 class Board:
@@ -25,6 +26,8 @@ class Board:
 
         # maintain a list of pieces on the board
         self.pieces = []
+        self.changed_pieces = []
+        self.killed_pieces = []
 
         # initialize the pieces
         self.init_pieces()
@@ -33,39 +36,53 @@ class Board:
         # initialize the pieces
         starting_positions = {
             PieceType.Pawn: [
-                (1, 0), (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7),
-                (6, 0), (6, 1), (6, 2), (6, 3), (6, 4), (6, 5), (6, 6), (6, 7)
+                (1, 0),
+                (1, 1),
+                (1, 2),
+                (1, 3),
+                (1, 4),
+                (1, 5),
+                (1, 6),
+                (1, 7),
+                (6, 0),
+                (6, 1),
+                (6, 2),
+                (6, 3),
+                (6, 4),
+                (6, 5),
+                (6, 6),
+                (6, 7),
             ],
-            PieceType.Knight: [
-                (0, 1), (0, 6),
-                (7, 1), (7, 6)
-            ],
-            PieceType.Rook: [
-                (0, 0), (0, 7),
-                (7, 0), (7, 7)
-            ],
-            PieceType.Bishop: [
-                (0, 2), (0, 5),
-                (7, 2), (7, 5)
-            ],
+            PieceType.Knight: [(0, 1), (0, 6), (7, 1), (7, 6)],
+            PieceType.Rook: [(0, 0), (0, 7), (7, 0), (7, 7)],
+            PieceType.Bishop: [(0, 2), (0, 5), (7, 2), (7, 5)],
             PieceType.Queen: [(0, 3), (7, 3)],
             PieceType.King: [(0, 4), (7, 4)],
         }
 
         for piece_type, positions in starting_positions.items():
             for row, col in positions:
-                piece_colour = PieceColour.Black if row in [
-                    0, 1] else PieceColour.White
+                piece_colour = PieceColour.Black if row in [0, 1] else PieceColour.White
                 piece_pos = (40 + col * 90, 40 + row * 90)
-                piece = Piece(self.window_surface, piece_type, piece_colour,
-                              piece_pos, GridPosition(row, col))
+                piece = Piece(
+                    self.window_surface,
+                    piece_type,
+                    piece_colour,
+                    piece_pos,
+                    GridPosition(row, col),
+                )
                 self.add_piece(piece)
 
     def add_piece(self, piece: Piece) -> None:
         self.pieces.append(piece)
 
     def remove_piece(self, piece: Piece) -> None:
-        self.pieces.remove(piece)
+        # remove piece from the list
+        # we delete it this way because a remove by value causes errors
+        for i, p in enumerate(self.pieces):
+            if p == piece:
+                del self.pieces[i]
+                break
 
     def get_piece(self, piece_pos) -> Piece:
         for piece in self.pieces:
@@ -74,11 +91,49 @@ class Board:
 
         return None
 
+    def move_piece(self, piece: Piece, new_pos: Tuple[int, int]) -> bool:
+        # check if target square is occupied
+        target_sq_piece = self.get_piece_at(new_pos)
+        if (
+            target_sq_piece
+            and target_sq_piece != piece
+            and target_sq_piece.piece_colour == piece.piece_colour
+        ):
+            # can't move to occupied square of same color
+            return False
+
+        # handle collision, remove the piece
+        if (
+            target_sq_piece
+            and target_sq_piece.piece_colour != piece.piece_colour
+            and is_move_valid(
+                piece.grid_pos,
+                self.get_grid_at(new_pos),
+                piece.piece_type,
+                piece.piece_colour,
+            )
+        ):
+            self.remove_piece(target_sq_piece)
+            self.killed_pieces.append(target_sq_piece)
+
+        # update piece position
+        piece.move_to(self.get_grid_at(new_pos))
+        self.changed_pieces.append(piece)
+        return True
+
+    def redraw_pieces(self):
+        for piece in self.pieces:
+            piece.render()
+        for piece in self.changed_pieces:
+            piece.render()
+
+        self.changed_pieces.clear()
+
     def render(self) -> None:
         self.window_surface.blit(self.board_image, self.board_rect)
 
-        for piece in self.pieces:
-            piece.render()
+        # redraw pieces
+        self.redraw_pieces()
 
     def get_piece_at(self, pos: Tuple[int, int]) -> Optional[Piece]:
         for piece in self.pieces:
