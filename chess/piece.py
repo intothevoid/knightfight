@@ -65,5 +65,18 @@ class Piece:
         self.piece_rect = self.piece_image.get_rect()
         self.piece_rect.topleft = piece_pos
 
+    def move_to(self, new_pos: GridPosition):
+        print(f"New position: {new_pos.row}:{new_pos.col}")
+
+        if new_pos == None or new_pos.col == None or new_pos.col == None:
+            return
+
+        self.grid_pos = new_pos
+
+        # margin is 40 pixels
+        # each square is 90x90 pixels
+        self.piece_rect.topleft = (40 + new_pos.col * 90,
+                                   40 + new_pos.row * 90)
+
     def render(self) -> None:
         self.window_surface.blit(self.piece_image, self.piece_rect)

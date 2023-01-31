@@ -3,6 +3,7 @@ The board class to capture the state of the chess board.
 """
 
 import pygame
+from typing import Tuple, Optional
 from chess.piece import Piece
 from config import config
 from chess.types import PieceType, PieceColour
@@ -91,3 +92,27 @@ class Board:
 
         for piece in self.pieces:
             piece.render()
+
+    def get_piece_at(self, pos: Tuple[int, int]) -> Optional[Piece]:
+        for piece in self.pieces:
+            if piece.piece_rect.collidepoint(pos):
+                return piece
+
+        return None
+
+    def get_grid_at(self, pos: Tuple[int, int]) -> Optional[GridPosition]:
+        x, y = pos
+
+        print(f"x:{x} y:{y}")
+
+        if x < 40 or y < 40:  # margin on left is 40 pixels
+            return None
+        if x > 740 or y > 740:  # margin on right is 40 pixels
+            return None
+
+        col = (x - 40) // 90  # each square is 90 pixels
+        row = (y - 40) // 90
+
+        print(f"col:{col} row:{row}")
+
+        return GridPosition(row, col)
