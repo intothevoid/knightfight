@@ -100,6 +100,11 @@ class Board:
             and target_sq_piece.piece_colour == piece.piece_colour
         ):
             # can't move to occupied square of same color
+            # go back to old position
+            piece.piece_rect.topleft = (
+                40 + piece.grid_pos.col * 90,
+                40 + piece.grid_pos.row * 90,
+            )
             return False
 
         # handle collision, remove the piece

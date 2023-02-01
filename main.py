@@ -25,7 +25,7 @@ class KnightFight:
         board_size = config.APP_CONFIG["board"]["size"]
         screen = pygame.display.set_mode((board_size, board_size))
         screen.fill(BOARD_BK_COLOUR)
-        pygame.display.set_caption("Knight Fight")
+        pygame.display.set_caption("Knight Fight - https://github.com/intothevoid/")
         pygame.mouse.set_visible(1)
 
         # render the board
