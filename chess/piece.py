@@ -4,7 +4,7 @@ The piece class to capture the state of the chess pieces.
 
 import pygame
 from dataclasses import dataclass
-from typing import Tuple
+from typing import Tuple, Any
 from chess.types import PieceType, PieceColour, GridPosition
 from chess.converter import convert_grid_pos_to_algebraic_notation
 from ai.movement import is_move_valid
@@ -12,7 +12,9 @@ from config import config
 from helpers.log import LOGGER
 
 
-def get_piece_from_strip(image_file: str, piece_type: PieceType) -> pygame.Surface:
+def get_piece_from_strip(
+    image_file: str, piece_type: PieceType
+) -> Tuple[pygame.Surface, Any]:
 
     strip_image = pygame.image.load(f"assets/{image_file}")
     piece_width = int(strip_image.get_width() / 6)
@@ -26,7 +28,7 @@ def get_piece_from_strip(image_file: str, piece_type: PieceType) -> pygame.Surfa
         "bishop": 3,
         "queen": 4,
         "king": 5,
-    }[piece_type.lower()]
+    }[piece_type.value.lower()]
     piece_x = piece_width * piece_index
 
     # Create a new surface to store the desired piece
@@ -87,6 +89,9 @@ class Piece:
         if new_grid_pos is None or new_grid_pos.row is None or new_grid_pos.col is None:
             return
 
+        if new_grid_pos.row == -1 or new_grid_pos.col == -1:
+            return
+
         # check if move is valid
         if not is_move_valid(
             self.grid_pos, new_grid_pos, self.piece_type, self.piece_colour
@@ -97,6 +102,10 @@ class Piece:
                 40 + self.grid_pos.row * 90,
             )
         else:
+            LOGGER.debug(
+                f"{self.piece_colour.value} {self.piece_type.value} moved {convert_grid_pos_to_algebraic_notation(self.grid_pos)} -> {convert_grid_pos_to_algebraic_notation(new_grid_pos)}"
+            )
+
             self.grid_pos = new_grid_pos
 
             # margin is 40 pixels
@@ -104,9 +113,6 @@ class Piece:
             self.piece_rect.topleft = (
                 40 + new_grid_pos.col * 90,
                 40 + new_grid_pos.row * 90,
-            )
-            LOGGER.debug(
-                f"{self.piece_colour} {self.piece_type} moved to: {convert_grid_pos_to_algebraic_notation(new_grid_pos)}"
             )
 
     def render(self) -> None:

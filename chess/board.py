@@ -3,7 +3,7 @@ The board class to capture the state of the chess board.
 """
 
 import pygame
-from typing import Tuple, Optional
+from typing import Tuple, Optional, List
 from chess.piece import Piece
 from config import config
 from chess.types import PieceType, PieceColour
@@ -84,7 +84,7 @@ class Board:
                 del self.pieces[i]
                 break
 
-    def get_piece(self, piece_pos) -> Piece:
+    def get_piece(self, piece_pos) -> Optional[Piece | None]:
         for piece in self.pieces:
             if piece.piece_pos == piece_pos:
                 return piece
@@ -93,7 +93,16 @@ class Board:
 
     def move_piece(self, piece: Piece, new_pos: Tuple[int, int]) -> bool:
         # check if target square is occupied
-        target_sq_piece = self.get_piece_at(new_pos)
+        pieces = self.get_piece_at(new_pos)
+        target_sq_piece = None
+
+        # if piece gets detected at the target square
+        if len(pieces) > 1:
+            if pieces[0] == piece:
+                target_sq_piece = pieces[1]
+            else:
+                target_sq_piece = pieces[0]
+
         if (
             target_sq_piece
             and target_sq_piece != piece
@@ -140,20 +149,23 @@ class Board:
         # redraw pieces
         self.redraw_pieces()
 
-    def get_piece_at(self, pos: Tuple[int, int]) -> Optional[Piece]:
+    def get_piece_at(self, pos: Tuple[int, int]) -> List[Piece]:
+        # a square can contain multiple pieces when a piece is being dragged over an existing piece
+        pieces = []
+
         for piece in self.pieces:
             if piece.piece_rect.collidepoint(pos):
-                return piece
+                pieces.append(piece)
 
-        return None
+        return pieces
 
-    def get_grid_at(self, pos: Tuple[int, int]) -> Optional[GridPosition]:
+    def get_grid_at(self, pos: Tuple[int, int]) -> GridPosition:
         x, y = pos
 
         if x < 40 or y < 40:  # margin on left is 40 pixels
-            return None
+            return GridPosition(-1, -1)
         if x > 740 or y > 740:  # margin on right is 40 pixels
-            return None
+            return GridPosition(-1, -1)
 
         col = (x - 40) // 90  # each square is 90 pixels
         row = (y - 40) // 90

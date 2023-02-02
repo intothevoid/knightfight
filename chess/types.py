@@ -1,9 +1,10 @@
 from dataclasses import dataclass
+from enum import Enum
 
 # enum for the piece types
 
 
-class PieceType:
+class PieceType(Enum):
     Bishop = "Bishop"
     King = "King"
     Knight = "Knight"
@@ -14,7 +15,7 @@ class PieceType:
 
 
 # enum for the piece colours
-class PieceColour:
+class PieceColour(Enum):
     Black = "B"
     White = "W"
     Empty = "Empty"

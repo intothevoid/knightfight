@@ -16,6 +16,21 @@ def is_move_valid(
     old position, new position, piece type and piece colour
     """
 
+    if old_pos == new_pos:
+        return False
+
+    if old_pos.row < 0 or old_pos.row > 7:
+        return False
+
+    if old_pos.col < 0 or old_pos.col > 7:
+        return False
+
+    if new_pos.row < 0 or new_pos.row > 7:
+        return False
+
+    if new_pos.col < 0 or new_pos.col > 7:
+        return False
+
     if piece_type == PieceType.Pawn:
         return check_pawn_move(old_pos, new_pos, piece_color)
     if piece_type == PieceType.Knight:
@@ -28,6 +43,9 @@ def is_move_valid(
         return check_queen_move(old_pos, new_pos)
     if piece_type == PieceType.King:
         return check_king_move(old_pos, new_pos)
+
+    # invalid piece type passed
+    return False
 
 
 def check_pawn_move(

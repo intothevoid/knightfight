@@ -26,17 +26,13 @@ class KnightFight:
         screen = pygame.display.set_mode((board_size, board_size))
         screen.fill(BOARD_BK_COLOUR)
         pygame.display.set_caption("Knight Fight - https://github.com/intothevoid/")
-        pygame.mouse.set_visible(1)
+        pygame.mouse.set_visible(True)
 
-        # render the board
+        # setup board
         board = Board(screen)
-        board.render()
 
         # main loop
         while True:
-            # grab initial position
-            pos = pygame.mouse.get_pos()
-
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -44,8 +40,7 @@ class KnightFight:
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     # check if a piece is clicked
                     pos = pygame.mouse.get_pos()
-                    clicked_piece = board.get_piece_at(pos)
-
+                    clicked_piece = board.get_piece_at(pos)[0]  # only one piece
                     if clicked_piece:
                         # save starting position and start drag-drop event
                         self.dragged_piece = clicked_piece
@@ -57,18 +52,23 @@ class KnightFight:
                     # update piece position if drag drop is active
                     if self.dragged_piece:
                         pos = pygame.mouse.get_pos()
-                        self.dragged_piece.piece_rect.x = pos[0] - self.drag_offset[0]
-                        self.dragged_piece.piece_rect.y = pos[1] - self.drag_offset[1]
+                        if self.drag_offset:
+                            self.dragged_piece.piece_rect.x = (
+                                pos[0] - self.drag_offset[0]
+                            )
+                            self.dragged_piece.piece_rect.y = (
+                                pos[1] - self.drag_offset[1]
+                            )
                 elif event.type == pygame.MOUSEBUTTONUP:
                     # end drag and drop event
                     if self.dragged_piece:
                         # update piece position on board
+                        pos = pygame.mouse.get_pos()
                         board.move_piece(self.dragged_piece, pos)
-
                         self.dragged_piece = None
                         self.drag_offset = None
 
-            # update board and pieces
+            # update the display
             board.render()
             pygame.display.update()
 
