@@ -6,6 +6,7 @@ import pygame
 from dataclasses import dataclass
 from typing import Tuple
 from chess.types import PieceType, PieceColour, GridPosition
+from chess.converter import convert_grid_pos_to_algebraic_notation
 from ai.movement import is_move_valid
 from config import config
 from helpers.log import LOGGER
@@ -105,7 +106,7 @@ class Piece:
                 40 + new_grid_pos.row * 90,
             )
             LOGGER.debug(
-                f"{self.piece_colour} {self.piece_type} moved to: {new_grid_pos.row}: {new_grid_pos.col}"
+                f"{self.piece_colour} {self.piece_type} moved to: {convert_grid_pos_to_algebraic_notation(new_grid_pos)}"
             )
 
     def render(self) -> None:
