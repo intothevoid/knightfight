@@ -47,6 +47,45 @@ class Board:
                 )
                 self.add_piece(piece)
 
+    def draw_grid(self) -> None:
+        """
+        Draw the grid on the board
+        """
+        # show grid if enabled in config
+        if config.APP_CONFIG["game"]["show_grid"]:
+            for row in range(8):
+                for col in range(8):
+                    rect = pygame.Rect(
+                        40 + col * 90, 40 + row * 90, 90, 90
+                    )  # x, y, width, height
+
+                    pygame.draw.rect(
+                        self.window_surface,
+                        (255, 0, 0),
+                        rect,
+                        1,
+                    )
+
+    def draw_positions(self) -> None:
+        """
+        Draw the positions on the board
+        """
+        # show grid position if enabled in config
+        if config.APP_CONFIG["game"]["show_positions"]:
+            font_name = config.APP_CONFIG["game"]["grid_font_name"]
+            font_size = config.APP_CONFIG["game"]["grid_font_size"]
+            grid_font = pygame.font.SysFont(font_name, font_size)
+            for row in range(8):
+                for col in range(8):
+                    x = 40 + col * 90 + 5
+                    y = 40 + row * 90 + 5
+
+                    grid_pos_text = grid_font.render(f"{row},{col}", True, (255, 0, 0))
+                    self.window_surface.blit(
+                        grid_pos_text,
+                        (x, y),
+                    )
+
     def add_piece(self, piece: Piece) -> None:
         self.state.pieces.append(piece)
 
@@ -123,7 +162,14 @@ class Board:
         self.state.changed_pieces.clear()
 
     def render(self) -> None:
+        # draw the board
         self.window_surface.blit(self.board_image, self.board_rect)
+
+        # draw grid
+        self.draw_grid()
+
+        # draw positions
+        self.draw_positions()
 
         # redraw pieces
         self.redraw_pieces()
