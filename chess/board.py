@@ -72,7 +72,7 @@ class Board:
         """
         # show grid position if enabled in config
         if config.APP_CONFIG["game"]["show_positions"]:
-            font_name = config.APP_CONFIG["game"]["grid_font_name"]
+            font_name = config.APP_CONFIG["game"]["font_name"]
             font_size = config.APP_CONFIG["game"]["grid_font_size"]
             grid_font = pygame.font.Font(f"assets/{font_name}", font_size)
             for row in range(8):
@@ -85,6 +85,39 @@ class Board:
                         grid_pos_text,
                         (x, y),
                     )
+
+    # draw row numbers and column letters
+    def draw_labels(self) -> None:
+        """
+        Draw the labels on the board
+        """
+        # show grid position if enabled in config
+        if config.APP_CONFIG["game"]["show_labels"]:
+            font_name = config.APP_CONFIG["game"]["font_name"]
+            font_size = config.APP_CONFIG["game"]["label_font_size"]
+            grid_font = pygame.font.Font(f"assets/{font_name}", font_size)
+
+            # draw row numbers
+            for row in range(0, 8):
+                x = 40 / 2 - 5
+                y = 40 + row * 90 + 35
+
+                grid_pos_text = grid_font.render(f"{row + 1}", True, (0, 0, 0))
+                self.window_surface.blit(
+                    grid_pos_text,
+                    (x, y),
+                )
+
+            # draw column letters
+            for col in range(8):
+                x = 40 + col * 90 + 40
+                y = 800 - 40
+
+                grid_pos_text = grid_font.render(f"{chr(97 + col)}", True, (0, 0, 0))
+                self.window_surface.blit(
+                    grid_pos_text,
+                    (x, y),
+                )
 
     def add_piece(self, piece: Piece) -> None:
         self.state.pieces.append(piece)
@@ -167,6 +200,9 @@ class Board:
 
         # draw grid
         self.draw_grid()
+
+        # draw labels
+        self.draw_labels()
 
         # draw positions
         self.draw_positions()

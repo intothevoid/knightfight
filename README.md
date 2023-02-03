@@ -11,7 +11,7 @@ Play chess with a pixelated retro board. Play against a CPU player or another fr
 ## Features
 1. Change board styles
 2. Piece move checks
-3. Sound effects and music! - coming soon!
+3. Sound effects and music!
 4. Configurable options
 5. Debug mode to highlight positions and grid
 3. Undo last move - coming soon!
