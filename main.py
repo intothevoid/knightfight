@@ -7,6 +7,7 @@ import sys
 
 from chess.board import Board
 from config import config
+from chess.types import PieceColour
 
 BOARD_BK_COLOUR = (255, 255, 255)
 
@@ -33,6 +34,9 @@ class KnightFight:
         # setup board
         board = Board(screen)
 
+        # track turn
+        turn = PieceColour.White
+
         # main loop
         while True:
             for event in pygame.event.get():
@@ -43,7 +47,7 @@ class KnightFight:
                     # check if a piece is clicked
                     pos = pygame.mouse.get_pos()
                     clicked_piece = board.get_piece_at(pos)[0]  # only one piece
-                    if clicked_piece:
+                    if clicked_piece and clicked_piece.piece_colour == turn:
                         # save starting position and start drag-drop event
                         self.dragged_piece = clicked_piece
                         self.drag_offset = (
@@ -69,6 +73,13 @@ class KnightFight:
                         board.move_piece(self.dragged_piece, pos)
                         self.dragged_piece = None
                         self.drag_offset = None
+
+                        # change turn
+                        turn = (
+                            PieceColour.White
+                            if turn == PieceColour.Black
+                            else PieceColour.Black
+                        )
 
             # update the display
             board.render()
