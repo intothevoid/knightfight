@@ -1,9 +1,11 @@
 # Knight Fight
 
-A game of Chess written using Pygame. Let the fight begin!
+> "Join the battle as a valiant knight, outsmart your opponent, and capture the enemy's king in this strategic and knightly game of Knight Fight Chess."
+
 <img src="https://raw.githubusercontent.com/intothevoid/knightfight/main/assets/logo.png" width="50%" height="50%"></img>
 
 Play chess with a pixelated retro board. Play against a CPU player or another friend.
+
 <img src="https://raw.githubusercontent.com/intothevoid/knightfight/main/assets/sshot.png" width="50%" height="50%"></img>
 
 ## Features
