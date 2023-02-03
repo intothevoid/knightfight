@@ -1,6 +1,6 @@
 # Knight Fight
 
-<img src="https://raw.githubusercontent.com/intothevoid/knightfight/main/assets/logo.png" width="80%" height="80%"></img>
+<img src="https://raw.githubusercontent.com/intothevoid/knightfight/main/assets/logo.png" width="60%" height="60%"></img>
 
 A game of Chess written using Pygame. Let the fight begin!
 
