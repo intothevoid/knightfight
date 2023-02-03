@@ -11,7 +11,7 @@ Play chess with a pixelated retro board. Play against a CPU player or another fr
 ## Features
 1. Change board styles
 2. Piece move checks
-3. Sound effects and music!
+3. Sound effects and music! - coming soon!
 4. Configurable options
 5. Debug mode to highlight positions and grid
 3. Undo last move - coming soon!
@@ -35,5 +35,7 @@ python3 main.py
 PyGame https://www.pygame.org/
 
 Dani Maccari's image assets https://dani-maccari.itch.io/
+
+Music assets by wyver https://wyver9.itch.io/8-bit-beatem-up-soundtrack
 
 Midjourney - Knight Fight Splash Image https://midjourney.com/

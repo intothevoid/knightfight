@@ -74,7 +74,7 @@ class Board:
         if config.APP_CONFIG["game"]["show_positions"]:
             font_name = config.APP_CONFIG["game"]["grid_font_name"]
             font_size = config.APP_CONFIG["game"]["grid_font_size"]
-            grid_font = pygame.font.SysFont(font_name, font_size)
+            grid_font = pygame.font.Font(f"assets/{font_name}", font_size)
             for row in range(8):
                 for col in range(8):
                     x = 40 + col * 90 + 5
