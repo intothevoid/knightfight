@@ -5,9 +5,9 @@ The board class to capture the state of the chess board.
 import pygame
 from typing import Tuple, Optional, List
 from chess.piece import Piece
+from chess.state import BoardState
 from config import config
-from chess.types import PieceType, PieceColour
-from chess.types import GridPosition
+from chess.types import PieceColour, GridPosition
 from ai.movement import is_move_valid
 
 
@@ -24,43 +24,17 @@ class Board:
             self.board_image, (board_size, board_size)
         )
 
-        # maintain a list of pieces on the board
-        self.pieces = []
-        self.changed_pieces = []
-        self.killed_pieces = []
+        # maintain state i.e. a list of pieces on the board
+        self.state = BoardState()
 
         # initialize the pieces
         self.init_pieces()
 
     def init_pieces(self) -> None:
-        # initialize the pieces
-        starting_positions = {
-            PieceType.Pawn: [
-                (1, 0),
-                (1, 1),
-                (1, 2),
-                (1, 3),
-                (1, 4),
-                (1, 5),
-                (1, 6),
-                (1, 7),
-                (6, 0),
-                (6, 1),
-                (6, 2),
-                (6, 3),
-                (6, 4),
-                (6, 5),
-                (6, 6),
-                (6, 7),
-            ],
-            PieceType.Knight: [(0, 1), (0, 6), (7, 1), (7, 6)],
-            PieceType.Rook: [(0, 0), (0, 7), (7, 0), (7, 7)],
-            PieceType.Bishop: [(0, 2), (0, 5), (7, 2), (7, 5)],
-            PieceType.Queen: [(0, 3), (7, 3)],
-            PieceType.King: [(0, 4), (7, 4)],
-        }
-
-        for piece_type, positions in starting_positions.items():
+        """
+        Initialize the pieces on the board
+        """
+        for piece_type, positions in self.state.get_starting_positions().items():
             for row, col in positions:
                 piece_colour = PieceColour.Black if row in [0, 1] else PieceColour.White
                 piece_pos = (40 + col * 90, 40 + row * 90)
@@ -74,18 +48,18 @@ class Board:
                 self.add_piece(piece)
 
     def add_piece(self, piece: Piece) -> None:
-        self.pieces.append(piece)
+        self.state.pieces.append(piece)
 
     def remove_piece(self, piece: Piece) -> None:
         # remove piece from the list
         # we delete it this way because a remove by value causes errors
-        for i, p in enumerate(self.pieces):
+        for i, p in enumerate(self.state.pieces):
             if p == piece:
-                del self.pieces[i]
+                del self.state.pieces[i]
                 break
 
     def get_piece(self, piece_pos) -> Optional[Piece | None]:
-        for piece in self.pieces:
+        for piece in self.state.pieces:
             if piece.piece_pos == piece_pos:
                 return piece
 
@@ -102,6 +76,8 @@ class Board:
                 target_sq_piece = pieces[1]
             else:
                 target_sq_piece = pieces[0]
+        else:
+            target_sq_piece = pieces[0] if len(pieces) == 1 else None
 
         if (
             target_sq_piece
@@ -125,23 +101,26 @@ class Board:
                 self.get_grid_at(new_pos),
                 piece.piece_type,
                 piece.piece_colour,
+                self.state,
             )
         ):
             self.remove_piece(target_sq_piece)
-            self.killed_pieces.append(target_sq_piece)
+            self.state.killed_pieces.append(target_sq_piece)
 
         # update piece position
-        piece.move_to(self.get_grid_at(new_pos))
-        self.changed_pieces.append(piece)
+        piece.move_to(self.get_grid_at(new_pos), self.state)
+        self.state.changed_pieces.append(piece)
         return True
 
     def redraw_pieces(self):
-        for piece in self.pieces:
+        for piece in self.state.pieces:
             piece.render()
-        for piece in self.changed_pieces:
+        for piece in self.state.changed_pieces:
             piece.render()
 
-        self.changed_pieces.clear()
+        # update board state
+        self.state.update_board_state()
+        self.state.changed_pieces.clear()
 
     def render(self) -> None:
         self.window_surface.blit(self.board_image, self.board_rect)
@@ -153,7 +132,7 @@ class Board:
         # a square can contain multiple pieces when a piece is being dragged over an existing piece
         pieces = []
 
-        for piece in self.pieces:
+        for piece in self.state.pieces:
             if piece.piece_rect.collidepoint(pos):
                 pieces.append(piece)
 

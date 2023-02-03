@@ -4,12 +4,13 @@ The piece class to capture the state of the chess pieces.
 
 import pygame
 from dataclasses import dataclass
+from helpers.log import LOGGER
 from typing import Tuple, Any
-from chess.types import PieceType, PieceColour, GridPosition
+from config import config
 from chess.converter import convert_grid_pos_to_algebraic_notation
 from ai.movement import is_move_valid
-from config import config
-from helpers.log import LOGGER
+from chess.state import BoardState, PieceColour, PieceType
+from chess.types import GridPosition
 
 
 def get_piece_from_strip(
@@ -84,7 +85,7 @@ class Piece:
             and self.grid_pos == other.grid_pos
         )
 
-    def move_to(self, new_grid_pos: GridPosition):
+    def move_to(self, new_grid_pos: GridPosition, board_state: BoardState):
 
         if new_grid_pos is None or new_grid_pos.row is None or new_grid_pos.col is None:
             return
@@ -94,7 +95,7 @@ class Piece:
 
         # check if move is valid
         if not is_move_valid(
-            self.grid_pos, new_grid_pos, self.piece_type, self.piece_colour
+            self.grid_pos, new_grid_pos, self.piece_type, self.piece_colour, board_state
         ):
             # go back to old position
             self.piece_rect.topleft = (
