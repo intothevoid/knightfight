@@ -1,10 +1,20 @@
 # Knight Fight
 
-<img src="https://raw.githubusercontent.com/intothevoid/knightfight/main/assets/logo.png" width="60%" height="60%"></img>
-
 A game of Chess written using Pygame. Let the fight begin!
+<img src="https://raw.githubusercontent.com/intothevoid/knightfight/main/assets/logo.png" width="50%" height="50%"></img>
 
+Play chess with a pixelated retro board. Play against a CPU player or another friend.
 <img src="https://raw.githubusercontent.com/intothevoid/knightfight/main/assets/sshot.png" width="50%" height="50%"></img>
+
+## Features
+1. Change board styles
+2. Piece move checks
+3. Sound effects and music!
+4. Configurable options
+5. Debug mode to highlight positions and grid
+3. Undo last move - coming soon!
+4. Record game and watch a playback - coming soon!
+5. Multiplayer - coming soon!
 
 ## Installation
 
