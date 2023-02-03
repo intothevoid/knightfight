@@ -8,7 +8,17 @@ class BoardState:
         """
         Initialize the board state
         """
-        self.board_state = {
+        self.board_state = self.get_cleared_state()
+
+        self._pieces = []
+        self._killed_pieces = []
+        self._changed_pieces = []
+
+    def get_cleared_state(self) -> dict:
+        """
+        Get a cleared board state
+        """
+        return {
             PieceColour.Black: {
                 PieceType.Pawn: [],
                 PieceType.Knight: [],
@@ -26,10 +36,6 @@ class BoardState:
                 PieceType.King: [],
             },
         }
-
-        self._pieces = []
-        self._killed_pieces = []
-        self._changed_pieces = []
 
     @property
     def pieces(self) -> List[Any]:
@@ -61,6 +67,9 @@ class BoardState:
         """
         Set the board state based on the pieces on the board
         """
+        self.board_state.clear()
+        self.board_state = self.get_cleared_state()
+
         for piece in self._pieces:
             self.board_state[piece.piece_colour][piece.piece_type].append(
                 piece.grid_pos

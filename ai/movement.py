@@ -69,7 +69,8 @@ def validate_path(
     """
     if new_pos in piece_path:
         for pos in piece_path:
-            if pos != old_pos and pos != new_pos:
+            # check if the path is blocked by any other piece
+            if pos not in [old_pos, new_pos]:
                 if is_position_occupied(pos, board_state):
                     return False
         return True
@@ -109,6 +110,10 @@ def get_pawn_path(
         if start_col == end_col:
             # check if move is valid
             if (start_row - end_row) in [1, 2]:
+                # check if pawn is moving two squares and is in starting position
+                if (start_row - end_row) == 2 and start_row != 6:
+                    return []
+
                 # check if pawn is moving in the right direction
                 if end_row > start_row:
                     return []
@@ -121,6 +126,10 @@ def get_pawn_path(
         if start_col == end_col:
             # check if move is valid
             if (end_row - start_row) in [1, 2]:
+                # check if pawn is moving two squares and is in starting position
+                if (end_row - start_row) == 2 and start_row != 1:
+                    return []
+
                 # check if pawn is moving in the right direction
                 if end_row < start_row:
                     return []
@@ -148,26 +157,8 @@ def get_rook_path(start: GridPosition, end: GridPosition) -> List[GridPosition]:
 
 
 def get_knight_path(start: GridPosition, end: GridPosition) -> List[GridPosition]:
-    start_row, start_col = start.row, start.col
-    end_row, end_col = end.row, end.col
-    path = []
-
-    move_deltas = [
-        (1, 2),
-        (2, 1),
-        (-1, 2),
-        (2, -1),
-        (-2, 1),
-        (1, -2),
-        (-2, -1),
-        (-1, -2),
-    ]
-    for delta_row, delta_col in move_deltas:
-        move_row, move_col = start_row + delta_row, start_col + delta_col
-        if (move_row, move_col) == (end_row, end_col):
-            path.append([start, (move_row, move_col)])
-
-    return path
+    # Knight can jump over other pieces, and hence we don't need to check the path
+    return [end]
 
 
 def get_bishop_path(start: GridPosition, end: GridPosition) -> List[GridPosition]:
@@ -184,6 +175,9 @@ def get_bishop_path(start: GridPosition, end: GridPosition) -> List[GridPosition
             range(start_row, end_row, row_step), range(start_col, end_col, col_step)
         ):
             path.append(GridPosition(row, col))
+
+        # add the end position
+        path.append(end)
 
     return path
 
