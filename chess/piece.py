@@ -117,4 +117,25 @@ class Piece:
             )
 
     def render(self) -> None:
+        # show grid if enabled in config
+        if config.APP_CONFIG["game"]["show_grid"]:
+            pygame.draw.rect(
+                self.window_surface,
+                (255, 0, 0),
+                self.piece_rect,
+                1,
+            )
+
+        # show grid position if enabled in config
+        if config.APP_CONFIG["game"]["show_positions"]:
+            font_name = config.APP_CONFIG["game"]["grid_font_name"]
+            font_size = config.APP_CONFIG["game"]["grid_font_size"]
+            grid_font = pygame.font.SysFont(font_name, font_size)
+            grid_pos_text = grid_font.render(
+                f"{self.grid_pos.row},{self.grid_pos.col}", True, (255, 0, 0)
+            )
+            self.window_surface.blit(
+                grid_pos_text,
+                (self.piece_rect.left + 5, self.piece_rect.top + 5),
+            )
         self.window_surface.blit(self.piece_image, self.piece_rect)

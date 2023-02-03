@@ -1,6 +1,10 @@
 game:
   players: 1 # valid values are 1, 2
   sound: false
+  show_grid: true
+  show_positions: true
+  grid_font_name: "Arial"
+  grid_font_size: 10
 
 board:
   image: "board_plain_02.png"
