@@ -35,7 +35,7 @@ def is_move_valid(
         return False
 
     if piece_type == PieceType.Pawn:
-        piece_path = get_pawn_path(old_pos, new_pos, piece_colour)
+        piece_path = get_pawn_path(old_pos, new_pos, piece_colour, board_state)
         return validate_path(piece_path, old_pos, new_pos, board_state)
     if piece_type == PieceType.Knight:
         # for knight piece, we can jump over other pieces
@@ -99,7 +99,7 @@ def is_position_occupied(pos: GridPosition, board_state: BoardState) -> bool:
 
 
 def get_pawn_path(
-    start: GridPosition, end: GridPosition, color: PieceColour
+    start: GridPosition, end: GridPosition, color: PieceColour, board_state: BoardState
 ) -> List[GridPosition]:
     start_row, start_col = start.row, start.col
     end_row, end_col = end.row, end.col
@@ -117,9 +117,22 @@ def get_pawn_path(
                 # check if pawn is moving in the right direction
                 if end_row > start_row:
                     return []
+
+                # check if end position is occupied
+                # cannot kill piece by moving forward, must move diagonally
+                if is_position_occupied(end, board_state):
+                    return []
+
                 for row in range(start_row, end_row, -1):
                     path.append(GridPosition(row, start_col))
                 path.append(end)
+        else:
+            # check if the move is diagonal
+            if (start_row - end_row) == 1 and abs(start_col - end_col) == 1:
+                # pawn is about to kill a piece diagonally
+                # cannot move diagonally if the position is empty
+                if is_position_occupied(end, board_state):
+                    path.append(end)
 
     if color == PieceColour.Black:
         # check if the move is along the column
@@ -133,9 +146,22 @@ def get_pawn_path(
                 # check if pawn is moving in the right direction
                 if end_row < start_row:
                     return []
+
+                # check if end position is occupied
+                # cannot kill piece by moving forward, must move diagonally
+                if is_position_occupied(end, board_state):
+                    return []
+
                 for row in range(start_row, end_row):
                     path.append(GridPosition(row, start_col))
                 path.append(end)
+        else:
+            # check if the move is diagonal
+            if (end_row - start_row) == 1 and abs(start_col - end_col) == 1:
+                # pawn is about to kill a piece diagonally
+                # cannot move diagonally if the position is empty
+                if is_position_occupied(end, board_state):
+                    path.append(end)
 
     return path
 

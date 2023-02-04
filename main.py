@@ -73,9 +73,8 @@ class KnightFight:
         turn = PieceColour.White
 
         # play music
-        if config.APP_CONFIG["game"]["music"]:
-            ost = config.APP_CONFIG["game"]["soundtrack"]
-            play_music(ost)
+        ost = config.APP_CONFIG["game"]["soundtrack"]
+        play_music(ost)
 
         try:
             # main loop
