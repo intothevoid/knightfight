@@ -131,9 +131,9 @@ class KnightFight:
                                     if turn == PieceColour.Black
                                     else PieceColour.Black
                                 )
-                                play_sound("drop.wav", sound_vol)
+                                play_sound("drop.mp3", sound_vol)
                             else:
-                                play_sound("invalid_move.wav", sound_vol)
+                                play_sound("invalid_move.mp3", sound_vol)
 
                 # update the display
                 board.render()

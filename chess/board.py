@@ -192,7 +192,7 @@ class Board:
         ):
             self.remove_piece(target_sq_piece)
             self.state.killed_pieces.append(target_sq_piece)
-            play_sound("explode.wav", self.sound_vol)
+            play_sound("explode.mp3", self.sound_vol)
             display_sprite_animation(
                 self.window_surface,
                 "assets/explosion.png",
