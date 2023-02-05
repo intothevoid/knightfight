@@ -4,11 +4,13 @@ The board class to capture the state of the chess board.
 
 import pygame
 from typing import Tuple, Optional, List
+from animation.animation import display_sprite_animation
 from chess.piece import Piece
 from chess.state import BoardState
 from config import config
 from chess.types import PieceColour, GridPosition
 from ai.movement import is_move_valid
+from sound.playback import play_sound
 
 
 class Board:
@@ -16,6 +18,7 @@ class Board:
         board_size = config.APP_CONFIG["board"]["size"]
         board_image = config.APP_CONFIG["board"]["image"]
 
+        self.sound_vol = config.APP_CONFIG["game"]["sound_vol"]
         self.window_surface = window_surface
         self.board_image = pygame.image.load(f"assets/{board_image}")
         self.board_rect = self.board_image.get_rect()
@@ -178,6 +181,13 @@ class Board:
         ):
             self.remove_piece(target_sq_piece)
             self.state.killed_pieces.append(target_sq_piece)
+            play_sound("explode.wav", self.sound_vol)
+            display_sprite_animation(
+                self.window_surface,
+                "assets/explosion.png",
+                12,
+                target_sq_piece.piece_rect,
+            )
 
         # update piece position
         piece.move_to(self.get_grid_at(new_pos), self.state)

@@ -9,7 +9,7 @@ from chess.board import Board
 from config import config
 from chess.types import PieceColour
 from helpers.log import LOGGER
-from sound.playback import play_music
+from sound.playback import play_music, play_sound
 
 BOARD_BK_COLOUR = (255, 255, 255)
 
@@ -53,6 +53,10 @@ class KnightFight:
         pygame.init()
         config.read_config()
 
+        # set up sound volume
+        music_vol = config.APP_CONFIG["game"]["music_vol"]
+        sound_vol = config.APP_CONFIG["game"]["sound_vol"]
+
         # set up the window
         board_size = config.APP_CONFIG["board"]["size"]
         screen = pygame.display.set_mode((board_size, board_size))
@@ -74,7 +78,7 @@ class KnightFight:
 
         # play music
         ost = config.APP_CONFIG["game"]["soundtrack"]
-        play_music(ost)
+        play_music(ost, music_vol)  # music volume
 
         try:
             # main loop
@@ -127,6 +131,9 @@ class KnightFight:
                                     if turn == PieceColour.Black
                                     else PieceColour.Black
                                 )
+                                play_sound("drop.wav", sound_vol)
+                            else:
+                                play_sound("invalid_move.wav", sound_vol)
 
                 # update the display
                 board.render()
