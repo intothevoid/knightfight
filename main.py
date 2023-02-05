@@ -2,16 +2,19 @@
 Knight Fight is a Chess game written using pygame.
 """
 
+from typing import Optional
 import pygame
 import sys
 
 from chess.board import Board
+from chess.state import BoardState
 from config import config
-from chess.types import PieceColour
+from chess.types import PieceColour, PieceType
 from helpers.log import LOGGER
 from sound.playback import play_music, play_sound
 
 BOARD_BK_COLOUR = (255, 255, 255)
+BOARD_BK_COLOUR_BLACK = (0, 0, 0)
 
 
 class KnightFight:
@@ -136,11 +139,60 @@ class KnightFight:
                                 play_sound("invalid_move.mp3", sound_vol)
 
                 # update the display
-                board.render()
-                pygame.display.update()
+                if board.state.game_over:
+                    game_over(screen, board.state)
+                else:
+                    board.render()
+                    pygame.display.update()
 
         except Exception as exc:
             LOGGER.error(exc)
+
+
+# function to blank the screen and display game over message
+def game_over(screen: pygame.surface.Surface, state: BoardState):
+    # set up font
+    font_name = config.APP_CONFIG["game"]["font_name"]
+    font_size = config.APP_CONFIG["game"]["grid_font_size"]
+    font = pygame.font.Font(f"assets/{font_name}", 72)
+
+    # draw image on screen at location config.APP_CONFIG["board"]["size"] // 2, config.APP_CONFIG["board"]["size"] // 2
+    winner_piece = None
+    for piece in state.pieces:
+        if piece.piece_type == PieceType.King:
+            winner_piece = piece
+            break
+
+    # set up text
+    text = font.render("Game Over", True, (255, 255, 255))
+    text_rect = text.get_rect()
+    text_rect.center = (
+        config.APP_CONFIG["board"]["size"] // 2,
+        config.APP_CONFIG["board"]["size"] // 2,
+    )
+
+    # set up font
+    win_text = "White" if state.winner == PieceColour.White else "Black"
+    font2 = pygame.font.Font(f"assets/{font_name}", 48)
+    text2 = font2.render(f"{win_text} wins!", True, (255, 255, 255))
+    text_rect2 = text2.get_rect()
+    text_rect2.center = (
+        config.APP_CONFIG["board"]["size"] // 2,
+        config.APP_CONFIG["board"]["size"] // 2 + 80,
+    )
+
+    # show game over screen
+    screen.fill(BOARD_BK_COLOUR_BLACK)
+    screen.blit(text, text_rect)
+    screen.blit(text2, text_rect2)
+    if winner_piece:
+        winner_rect = winner_piece.piece_rect
+        winner_rect.center = (
+            config.APP_CONFIG["board"]["size"] // 2,
+            config.APP_CONFIG["board"]["size"] // 2 - 100,  # 100 pixels above text
+        )
+        screen.blit(winner_piece.piece_image, winner_rect)
+    pygame.display.update()
 
 
 if __name__ == "__main__":

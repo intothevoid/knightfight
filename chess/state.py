@@ -1,6 +1,5 @@
 from typing import List, Any  # use Any instead of Piece to avoid circular import
 from chess.types import PieceColour, PieceType
-from chess.types import GridPosition
 
 
 class BoardState:
@@ -13,6 +12,9 @@ class BoardState:
         self._pieces = []
         self._killed_pieces = []
         self._changed_pieces = []
+
+        self.game_over = False
+        self.winner = None
 
     def get_cleared_state(self) -> dict:
         """

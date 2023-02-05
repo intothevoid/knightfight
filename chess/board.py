@@ -8,7 +8,7 @@ from animation.animation import display_sprite_animation
 from chess.piece import Piece
 from chess.state import BoardState
 from config import config
-from chess.types import PieceColour, GridPosition
+from chess.types import PieceColour, GridPosition, PieceType
 from ai.movement import is_move_valid
 from sound.playback import play_sound
 
@@ -192,13 +192,23 @@ class Board:
         ):
             self.remove_piece(target_sq_piece)
             self.state.killed_pieces.append(target_sq_piece)
-            play_sound("explode.mp3", self.sound_vol)
+
+            # play explosion animation
             display_sprite_animation(
                 self.window_surface,
                 "assets/explosion.png",
                 12,
                 target_sq_piece.piece_rect,
             )
+
+            # check if king is killed
+            if target_sq_piece.piece_type == PieceType.King:
+                self.state.game_over = True
+                self.state.winner = piece.piece_colour
+                play_sound("explode.mp3", self.sound_vol)
+                play_sound("game_over.mp3", self.sound_vol)
+            else:
+                play_sound("explode.mp3", self.sound_vol)
 
     def redraw_pieces(self):
         for piece in self.state.pieces:
