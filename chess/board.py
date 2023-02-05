@@ -168,6 +168,17 @@ class Board:
             return False
 
         # handle collision, remove the piece
+        self.check_collision_remove(piece, new_pos, target_sq_piece)
+
+        # update piece position
+        piece.move_to(self.get_grid_at(new_pos), self.state)
+        self.state.changed_pieces.append(piece)
+        return True
+
+    def check_collision_remove(self, piece, new_pos, target_sq_piece):
+        """
+        Handle collision between pieces
+        """
         if (
             target_sq_piece
             and target_sq_piece.piece_colour != piece.piece_colour
@@ -188,11 +199,6 @@ class Board:
                 12,
                 target_sq_piece.piece_rect,
             )
-
-        # update piece position
-        piece.move_to(self.get_grid_at(new_pos), self.state)
-        self.state.changed_pieces.append(piece)
-        return True
 
     def redraw_pieces(self):
         for piece in self.state.pieces:

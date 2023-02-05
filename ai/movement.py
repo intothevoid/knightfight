@@ -183,8 +183,16 @@ def get_rook_path(start: GridPosition, end: GridPosition) -> List[GridPosition]:
 
 
 def get_knight_path(start: GridPosition, end: GridPosition) -> List[GridPosition]:
-    # Knight can jump over other pieces, and hence we don't need to check the path
-    return [end]
+    start_row, start_col = start.row, start.col
+    end_row, end_col = end.row, end.col
+    path = []
+
+    # check if move is valid
+    if abs(start_row - end_row) in [1, 2] and abs(start_col - end_col) in [1, 2]:
+        if abs(start_row - end_row) != abs(start_col - end_col):
+            path.append(end)
+
+    return path
 
 
 def get_bishop_path(start: GridPosition, end: GridPosition) -> List[GridPosition]:
