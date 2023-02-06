@@ -213,8 +213,14 @@ class Board:
     def redraw_pieces(self):
         for piece in self.state.pieces:
             piece.render()
-        for piece in self.state.changed_pieces:
-            piece.render()
+
+        # show dragged piece on top after all other pieces have been rendered
+        if self.state.dragged_piece:
+            self.state.dragged_piece.render()
+        else:
+            # redraw pieces that have changed if no piece is being dragged
+            for piece in self.state.changed_pieces:
+                piece.render()
 
         # update board state
         self.state.update_board_state()
@@ -237,7 +243,8 @@ class Board:
         self.redraw_pieces()
 
     def get_piece_at(self, pos: Tuple[int, int]) -> List[Piece]:
-        # a square can contain multiple pieces when a piece is being dragged over an existing piece
+        # a square can contain multiple pieces when a piece is being dragged
+        # over an existing piece
         pieces = []
 
         for piece in self.state.pieces:

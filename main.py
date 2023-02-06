@@ -102,12 +102,17 @@ class KnightFight:
                                     pos[0] - clicked_piece.piece_rect.x,
                                     pos[1] - clicked_piece.piece_rect.y,
                                 )
+                            else:
+                                play_sound("invalid_move.mp3", sound_vol)
                         except IndexError:
                             # no piece at position
                             pass
                     elif event.type == pygame.MOUSEMOTION:
                         # update piece position if drag drop is active
                         if self.dragged_piece:
+                            # dragged piece to board state to allow rendering
+                            # of piece on top of other pieces
+                            board.state.dragged_piece = self.dragged_piece
                             pos = pygame.mouse.get_pos()
                             if self.drag_offset:
                                 self.dragged_piece.piece_rect.x = (
@@ -125,6 +130,7 @@ class KnightFight:
                             piece_moved = board.move_piece(self.dragged_piece, pos)
                             moved_pos = self.dragged_piece.grid_pos
                             self.dragged_piece = None
+                            board.state.dragged_piece = None
                             self.drag_offset = None
 
                             if piece_moved and original_pos != moved_pos:

@@ -12,6 +12,7 @@ class BoardState:
         self._pieces = []
         self._killed_pieces = []
         self._changed_pieces = []
+        self._dragged_piece = None
 
         self.game_over = False
         self.winner = None
@@ -62,6 +63,14 @@ class BoardState:
     @changed_pieces.setter
     def changed_pieces(self, changed_pieces: List[Any]) -> None:
         self._changed_pieces = changed_pieces
+
+    @property
+    def dragged_piece(self) -> Any:
+        return self._dragged_piece
+
+    @dragged_piece.setter
+    def dragged_piece(self, dragged_piece: Any) -> None:
+        self._dragged_piece = dragged_piece
 
     def update_board_state(
         self,
