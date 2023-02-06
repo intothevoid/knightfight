@@ -20,6 +20,16 @@ class PieceColour(Enum):
     Empty = "Empty"
 
 
+FEN_CONVERSION = {
+    PieceType.Pawn: "p",
+    PieceType.Knight: "n",
+    PieceType.Rook: "r",
+    PieceType.Bishop: "b",
+    PieceType.Queen: "q",
+    PieceType.King: "k",
+}
+
+
 @dataclass
 class GridPosition:
     def __init__(self, row, col):

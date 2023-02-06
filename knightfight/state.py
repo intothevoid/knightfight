@@ -1,4 +1,8 @@
-from typing import List, Any  # use Any instead of Piece to avoid circular import
+import chess
+from typing import List, Any
+from ai.engine import (
+    state_to_engine_state,
+)
 from knightfight.types import PieceColour, PieceType, State
 
 
@@ -19,6 +23,9 @@ class BoardState(State):
         # game state
         self.game_over = False
         self.winner = None
+
+        # engine state
+        self._engine_state = chess.Board()
 
     def get_cleared_state(self) -> dict:
         """
@@ -74,6 +81,19 @@ class BoardState(State):
     @dragged_piece.setter
     def dragged_piece(self, dragged_piece: Any) -> None:
         self._dragged_piece = dragged_piece
+
+    @property
+    def engine_state(self) -> chess.Board:
+        """
+        Get the engine state
+        Convert the board state to the engine state before returning
+        """
+        self.engine_state = state_to_engine_state(self.board_state)
+        return self._engine_state
+
+    @engine_state.setter
+    def engine_state(self, engine_state: chess.Board) -> None:
+        self._engine_state = engine_state
 
     def update_board_state(
         self,
