@@ -2,8 +2,9 @@
 Move related functionality using python chess
 """
 
+from typing import Optional
 import chess
-from knightfight.types import PieceColour
+from knightfight.types import GridPosition, PieceColour
 from knightfight.types import FEN_CONVERSION
 from helpers.log import LOGGER
 
@@ -35,6 +36,40 @@ def state_to_engine_state(state_dict: dict) -> chess.Board:
     # Return the engine state
     LOGGER.debug(f"FEN: {board.fen()}")
     return board
+
+
+def grid_pos_to_square(grid_pos: GridPosition) -> chess.Square:
+    """
+    Convert a grid position to a chess square
+    """
+    return chess.square(grid_pos.col, grid_pos.row)
+
+
+def grid_pos_to_move(start_pos: GridPosition, end_pos: GridPosition) -> chess.Move:
+    """
+    Convert a start and end grid position to a chess move
+    """
+    return chess.Move(grid_pos_to_square(start_pos), grid_pos_to_square(end_pos))
+
+
+# add move to board state
+def add_move_to_engine_state(
+    engine_state: chess.Board,
+    start: Optional[GridPosition | None],
+    end: Optional[GridPosition | None],
+) -> chess.Board:
+    """
+    Add a move to the board state
+    """
+    if start is None or end is None:
+        return engine_state
+
+    move = grid_pos_to_move(start, end)
+    engine_state.push(move)
+
+    # Return the engine state
+    LOGGER.debug(f"FEN: {engine_state.fen()}")
+    return engine_state
 
 
 def is_king_in_check(engine_state: chess.Board, color: PieceColour) -> bool:

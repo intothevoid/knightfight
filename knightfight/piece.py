@@ -85,13 +85,13 @@ class Piece:
             and self.grid_pos == other.grid_pos
         )
 
-    def move_to(self, new_grid_pos: GridPosition, board_state: BoardState):
+    def move_to(self, new_grid_pos: GridPosition, board_state: BoardState) -> bool:
 
         if new_grid_pos is None or new_grid_pos.row is None or new_grid_pos.col is None:
-            return
+            return False
 
         if new_grid_pos.row == -1 or new_grid_pos.col == -1:
-            return
+            return False
 
         # check if move is valid
         if not is_move_valid(
@@ -102,11 +102,9 @@ class Piece:
                 40 + self.grid_pos.col * 90,
                 40 + self.grid_pos.row * 90,
             )
-        else:
-            LOGGER.debug(
-                f"{self.piece_colour.value} {self.piece_type.value} moved {convert_grid_pos_to_algebraic_notation(self.grid_pos)} -> {convert_grid_pos_to_algebraic_notation(new_grid_pos)}"
-            )
 
+            return False
+        else:
             self.grid_pos = new_grid_pos
 
             # margin is 40 pixels
@@ -115,6 +113,8 @@ class Piece:
                 40 + new_grid_pos.col * 90,
                 40 + new_grid_pos.row * 90,
             )
+
+            return True
 
     def render(self) -> None:
         self.window_surface.blit(self.piece_image, self.piece_rect)

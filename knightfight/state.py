@@ -88,7 +88,6 @@ class BoardState(State):
         Get the engine state
         Convert the board state to the engine state before returning
         """
-        self.engine_state = state_to_engine_state(self.board_state)
         return self._engine_state
 
     @engine_state.setter

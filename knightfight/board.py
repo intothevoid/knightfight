@@ -4,7 +4,9 @@ The board class to capture the state of the chess board.
 
 import pygame
 from typing import Tuple, Optional, List
+from ai.engine import add_move_to_engine_state, state_to_engine_state
 from animation.animation import display_sprite_animation
+from helpers.log import LOGGER
 from knightfight.piece import Piece
 from knightfight.state import BoardState
 from config import config
@@ -49,6 +51,9 @@ class Board:
                     GridPosition(row, col),
                 )
                 self.add_piece(piece)
+
+        # initialise engine state
+        self.state.engine_state = state_to_engine_state(self.state.board_state)
 
     def draw_grid(self) -> None:
         """
@@ -167,13 +172,42 @@ class Board:
             )
             return False
 
+        # see if the king is in check
+        if self.state.engine_state.is_check():
+            # if king is in check, see if the move can get him out of check
+            if not is_move_valid(
+                piece.grid_pos,
+                self.get_grid_at(new_pos),
+                piece.piece_type,
+                piece.piece_colour,
+                self.state,
+            ):
+                # if the move can't get the king out of check, go back to old position
+                piece.piece_rect.topleft = (
+                    40 + piece.grid_pos.col * 90,
+                    40 + piece.grid_pos.row * 90,
+                )
+                return False
+
         # handle collision, remove the piece
         self.check_collision_remove(piece, new_pos, target_sq_piece)
 
-        # update piece position
-        piece.move_to(self.get_grid_at(new_pos), self.state)
-        self.state.changed_pieces.append(piece)
-        return True
+        # update engine state, before moving the piece
+        self.state.engine_state = add_move_to_engine_state(
+            self.state.engine_state,
+            piece.grid_pos,
+            self.get_grid_at(new_pos),
+        )
+
+        # move piece and update piece position
+        if piece.move_to(self.get_grid_at(new_pos), self.state):
+            LOGGER.info(
+                f"Moved {piece.piece_colour.value} {piece.piece_type.value} {self.state.engine_state.move_stack[-1]}"
+            )
+            self.state.changed_pieces.append(piece)
+            return True
+
+        return False
 
     def check_collision_remove(self, piece, new_pos, target_sq_piece):
         """
