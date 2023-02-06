@@ -8,6 +8,12 @@ Play chess with a pixelated retro board. Play against a CPU player or another fr
 
 <img src="https://raw.githubusercontent.com/intothevoid/knightfight/main/assets/sshot.png" width="50%" height="50%"></img>
 
+<img src="https://raw.githubusercontent.com/intothevoid/knightfight/main/assets/sshot_go.png" width="50%" height="50%"></img>
+
+Grid lines and positions overlay (configurable)
+
+<img src="https://raw.githubusercontent.com/intothevoid/knightfight/main/assets/sshot_debug.png" width="50%" height="50%"></img>
+
 ## Features
 1. Change board styles
 2. Piece move checks
