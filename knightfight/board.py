@@ -5,11 +5,11 @@ The board class to capture the state of the chess board.
 import pygame
 from typing import Tuple, Optional, List
 from animation.animation import display_sprite_animation
-from chess.piece import Piece
-from chess.state import BoardState
+from knightfight.piece import Piece
+from knightfight.state import BoardState
 from config import config
-from chess.types import PieceColour, GridPosition, PieceType
-from ai.movement import is_move_valid
+from knightfight.types import PieceColour, GridPosition, PieceType
+from ai.validation import is_move_valid
 from sound.playback import play_sound
 
 

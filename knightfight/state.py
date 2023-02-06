@@ -1,19 +1,22 @@
 from typing import List, Any  # use Any instead of Piece to avoid circular import
-from chess.types import PieceColour, PieceType
+from knightfight.types import PieceColour, PieceType, State
 
 
-class BoardState:
+class BoardState(State):
     def __init__(self) -> None:
         """
         Initialize the board state
         """
+        # board state
         self.board_state = self.get_cleared_state()
 
+        # pieces on the board
         self._pieces = []
         self._killed_pieces = []
         self._changed_pieces = []
         self._dragged_piece = None
 
+        # game state
         self.game_over = False
         self.winner = None
 

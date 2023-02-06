@@ -2,7 +2,7 @@
 Converts board positions of format (row, col) to readable format (a1, b2, etc.)
 """
 
-from chess.types import GridPosition
+from knightfight.types import GridPosition
 
 
 def convert_grid_pos_to_algebraic_notation(pos: GridPosition) -> str:

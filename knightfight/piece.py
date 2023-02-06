@@ -7,10 +7,10 @@ from dataclasses import dataclass
 from helpers.log import LOGGER
 from typing import Tuple, Any
 from config import config
-from chess.converter import convert_grid_pos_to_algebraic_notation
-from ai.movement import is_move_valid
-from chess.state import BoardState, PieceColour, PieceType
-from chess.types import GridPosition
+from knightfight.converter import convert_grid_pos_to_algebraic_notation
+from ai.validation import is_move_valid
+from knightfight.state import BoardState, PieceColour, PieceType
+from knightfight.types import GridPosition
 
 
 def get_piece_from_strip(

@@ -1,105 +1,9 @@
-"""
-Control and verify movement of pieces on the board
-"""
-
-from chess.types import GridPosition, PieceType, PieceColour
-from chess.state import BoardState
+from knightfight.types import GridPosition, PieceColour, State
 from typing import List
 
 
-def is_move_valid(
-    old_pos: GridPosition,
-    new_pos: GridPosition,
-    piece_type: PieceType,
-    piece_colour: PieceColour,
-    board_state: BoardState,
-) -> bool:
-    """
-    This function checks if piece moves are valid based on params like
-    old position, new position, piece type and piece colour
-    """
-
-    if old_pos == new_pos:
-        return False
-
-    if old_pos.row < 0 or old_pos.row > 7:
-        return False
-
-    if old_pos.col < 0 or old_pos.col > 7:
-        return False
-
-    if new_pos.row < 0 or new_pos.row > 7:
-        return False
-
-    if new_pos.col < 0 or new_pos.col > 7:
-        return False
-
-    if piece_type == PieceType.Pawn:
-        piece_path = get_pawn_path(old_pos, new_pos, piece_colour, board_state)
-        return validate_path(piece_path, old_pos, new_pos, board_state)
-    if piece_type == PieceType.Knight:
-        # for knight piece, we can jump over other pieces
-        piece_path = get_knight_path(old_pos, new_pos)
-        return validate_path(piece_path, old_pos, new_pos, board_state)
-    if piece_type == PieceType.Rook:
-        piece_path = get_rook_path(old_pos, new_pos)
-        return validate_path(piece_path, old_pos, new_pos, board_state)
-    if piece_type == PieceType.Bishop:
-        piece_path = get_bishop_path(old_pos, new_pos)
-        return validate_path(piece_path, old_pos, new_pos, board_state)
-    if piece_type == PieceType.Queen:
-        piece_path = get_queen_path(old_pos, new_pos)
-        return validate_path(piece_path, old_pos, new_pos, board_state)
-    if piece_type == PieceType.King:
-        piece_path = get_king_path(old_pos, new_pos)
-        return validate_path(piece_path, old_pos, new_pos, board_state)
-
-    # invalid piece type passed
-    return False
-
-
-def validate_path(
-    piece_path: List[GridPosition],
-    old_pos: GridPosition,
-    new_pos: GridPosition,
-    board_state: BoardState,
-) -> bool:
-    """
-    This function checks if the new position is a valid move
-    """
-    if new_pos in piece_path:
-        for pos in piece_path:
-            # check if the path is blocked by any other piece
-            if pos not in [old_pos, new_pos]:
-                if is_position_occupied(pos, board_state):
-                    return False
-        return True
-    return False
-
-
-def is_position_occupied(pos: GridPosition, board_state: BoardState) -> bool:
-    """
-    This function checks if the position is occupied by a piece
-    """
-    state = board_state.get_board_state()
-    black_pieces = state[PieceColour.Black]
-    white_pieces = state[PieceColour.White]
-
-    for _, pieces in black_pieces.items():
-        for piece in pieces:
-            if piece == pos:
-                return True
-
-    for _, pieces in white_pieces.items():
-        for piece in pieces:
-            if piece == pos:
-                return True
-
-    return False
-
-
 def get_pawn_path(
-    start: GridPosition, end: GridPosition, color: PieceColour, board_state: BoardState
+    start: GridPosition, end: GridPosition, color: PieceColour, end_pos_occupied: bool
 ) -> List[GridPosition]:
     start_row, start_col = start.row, start.col
     end_row, end_col = end.row, end.col
@@ -110,17 +14,18 @@ def get_pawn_path(
         if start_col == end_col:
             # check if move is valid
             if (start_row - end_row) in [1, 2]:
-                # check if pawn is moving two squares and is in starting position
+                # check if pawn is moving two squares and is not in starting position
                 if (start_row - end_row) == 2 and start_row != 6:
                     return []
 
                 # check if pawn is moving in the right direction
+                # valid move is from 6 to 4, not 4 to 6
                 if end_row > start_row:
                     return []
 
                 # check if end position is occupied
                 # cannot kill piece by moving forward, must move diagonally
-                if is_position_occupied(end, board_state):
+                if end_pos_occupied:
                     return []
 
                 for row in range(start_row, end_row, -1):
@@ -131,7 +36,7 @@ def get_pawn_path(
             if (start_row - end_row) == 1 and abs(start_col - end_col) == 1:
                 # pawn is about to kill a piece diagonally
                 # cannot move diagonally if the position is empty
-                if is_position_occupied(end, board_state):
+                if end_pos_occupied:
                     path.append(end)
 
     if color == PieceColour.Black:
@@ -139,17 +44,18 @@ def get_pawn_path(
         if start_col == end_col:
             # check if move is valid
             if (end_row - start_row) in [1, 2]:
-                # check if pawn is moving two squares and is in starting position
+                # check if pawn is moving two squares and is not in starting position
                 if (end_row - start_row) == 2 and start_row != 1:
                     return []
 
                 # check if pawn is moving in the right direction
+                # valid move is from 1 to 3, not 3 to 1
                 if end_row < start_row:
                     return []
 
                 # check if end position is occupied
                 # cannot kill piece by moving forward, must move diagonally
-                if is_position_occupied(end, board_state):
+                if end_pos_occupied:
                     return []
 
                 for row in range(start_row, end_row):
@@ -160,7 +66,7 @@ def get_pawn_path(
             if (end_row - start_row) == 1 and abs(start_col - end_col) == 1:
                 # pawn is about to kill a piece diagonally
                 # cannot move diagonally if the position is empty
-                if is_position_occupied(end, board_state):
+                if end_pos_occupied:
                     path.append(end)
 
     return path

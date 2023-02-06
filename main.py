@@ -6,10 +6,10 @@ from typing import Optional
 import pygame
 import sys
 
-from chess.board import Board
-from chess.state import BoardState
+from knightfight.board import Board
+from knightfight.state import BoardState
 from config import config
-from chess.types import PieceColour, PieceType
+from knightfight.types import PieceColour, PieceType
 from helpers.log import LOGGER
 from sound.playback import play_music, play_sound
 
@@ -201,6 +201,10 @@ def game_over(screen: pygame.surface.Surface, state: BoardState):
     pygame.display.update()
 
 
-if __name__ == "__main__":
+def start():
     chess = KnightFight()
     chess.run()
+
+
+if __name__ == "__main__":
+    start()
