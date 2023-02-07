@@ -87,6 +87,10 @@ class KnightFight:
             while True:
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
+                        # get last fen and save to config
+                        fen = board.state.engine_state.fen()
+                        config.APP_CONFIG["state"]["last_fen"] = str(fen)
+                        config.save_config()
                         pygame.quit()
                         sys.exit()
                     elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -144,7 +148,7 @@ class KnightFight:
                                 play_sound("invalid_move.mp3", sound_vol)
 
                 # update the display
-                if board.state.game_over:
+                if board.state.engine_state.is_game_over():
                     game_over(screen, board.state)
                 else:
                     board.render()
@@ -158,7 +162,6 @@ class KnightFight:
 def game_over(screen: pygame.surface.Surface, state: BoardState):
     # set up font
     font_name = config.APP_CONFIG["game"]["font_name"]
-    font_size = config.APP_CONFIG["game"]["grid_font_size"]
     font = pygame.font.Font(f"assets/{font_name}", 72)
 
     # draw image on screen at location config.APP_CONFIG["board"]["size"] // 2, config.APP_CONFIG["board"]["size"] // 2
