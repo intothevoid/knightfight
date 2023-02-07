@@ -2,9 +2,10 @@
 The board class to capture the state of the chess board.
 """
 
-import pygame
 from typing import Tuple, Optional, List
-from ai.engine import add_move_to_engine_state, state_to_engine_state
+import pygame
+import chess
+from ai.engine import add_move_to_engine_state, square_to_position
 from animation.animation import display_sprite_animation
 from helpers.log import LOGGER
 from knightfight.piece import Piece
@@ -29,7 +30,6 @@ class Board:
             self.board_image, (board_size, board_size)
         )
 
-        # maintain state i.e. a list of pieces on the board
         self.state = BoardState()
 
         # initialize the pieces
@@ -39,21 +39,33 @@ class Board:
         """
         Initialize the pieces on the board
         """
-        for piece_type, positions in self.state.get_starting_positions().items():
-            for row, col in positions:
-                piece_colour = PieceColour.Black if row in [0, 1] else PieceColour.White
-                piece_pos = (40 + col * 90, 40 + row * 90)
+
+        self.state.engine_state = chess.Board()
+        LOGGER.info(f"Starting FEN: {self.state.engine_state.fen()})")
+
+        # iterate through chess pieces and add them to the board
+        board = self.state.engine_state
+        print(board)
+
+        for square in board.piece_map():
+            piece = board.piece_at(square)
+            if piece is not None:
+                row, col = 7 - (square // 8), (square % 8)
+                piece_pos_x = 40 + col * 90
+                piece_pos_y = 40 + row * 90
+
                 piece = Piece(
                     self.window_surface,
-                    piece_type,
-                    piece_colour,
-                    piece_pos,
-                    GridPosition(row, col),
+                    PieceType(chess.piece_name(piece.piece_type).capitalize()),
+                    PieceColour("W" if piece.color == chess.WHITE else "B"),
+                    piece_pos_x,  # x pos left
+                    piece_pos_y,  # y pos top
+                    GridPosition(7 - row, col),
+                    square,
                 )
                 self.add_piece(piece)
 
-        # initialise engine state
-        self.state.engine_state = state_to_engine_state(self.state.board_state)
+        return
 
     def draw_grid(self) -> None:
         """
@@ -74,6 +86,25 @@ class Board:
                         1,
                     )
 
+    def draw_debug(self) -> None:
+        # draw text with rect.left, rect.top
+        font_name = config.APP_CONFIG["game"]["font_name"]
+        font_size = config.APP_CONFIG["game"]["grid_font_size"]
+        debug_font = pygame.font.Font(f"assets/{font_name}", font_size)
+
+        # show grid if enabled in config
+        if config.APP_CONFIG["game"]["show_debug"]:
+            for row in range(8):
+                for col in range(8):
+                    rect = pygame.Rect(
+                        45 + col * 90, 55 + row * 90, 90, 90
+                    )  # x, y, width, height
+
+                    debug_pos_text = debug_font.render(
+                        f"{rect.left},{rect.top}", True, (255, 0, 0)
+                    )
+                    self.window_surface.blit(debug_pos_text, rect)
+
     def draw_positions(self) -> None:
         """
         Draw the positions on the board
@@ -88,7 +119,10 @@ class Board:
                     x = 40 + col * 90 + 5
                     y = 40 + row * 90 + 5
 
-                    grid_pos_text = grid_font.render(f"{row},{col}", True, (255, 0, 0))
+                    col_lbl = chr(ord("a") + col)
+                    grid_pos_text = grid_font.render(
+                        f"{col_lbl}{7-row+1}", True, (255, 0, 0)
+                    )
                     self.window_surface.blit(
                         grid_pos_text,
                         (x, y),
@@ -110,7 +144,7 @@ class Board:
                 x = 40 / 2 - 5
                 y = 40 + row * 90 + 35
 
-                grid_pos_text = grid_font.render(f"{row + 1}", True, (0, 0, 0))
+                grid_pos_text = grid_font.render(f"{7 - row + 1}", True, (0, 0, 0))
                 self.window_surface.blit(
                     grid_pos_text,
                     (x, y),
@@ -149,6 +183,7 @@ class Board:
         # check if target square is occupied
         pieces = self.get_piece_at(new_pos)
         target_sq_piece = None
+        original_pos = piece.grid_pos
 
         # if piece gets detected at the target square
         if len(pieces) > 1:
@@ -164,47 +199,32 @@ class Board:
             and target_sq_piece != piece
             and target_sq_piece.piece_colour == piece.piece_colour
         ):
-            # can't move to occupied square of same color
-            # go back to old position
-            piece.piece_rect.topleft = (
-                40 + piece.grid_pos.col * 90,
-                40 + piece.grid_pos.row * 90,
-            )
-            return False
+            # update position
+            piece.piece_rect.topleft = square_to_position(piece.square)
 
-        # see if the king is in check
-        if self.state.engine_state.is_check():
-            # if king is in check, see if the move can get him out of check
-            if not is_move_valid(
-                piece.grid_pos,
-                self.get_grid_at(new_pos),
-                piece.piece_type,
-                piece.piece_colour,
-                self.state,
-            ):
-                # if the move can't get the king out of check, go back to old position
-                piece.piece_rect.topleft = (
-                    40 + piece.grid_pos.col * 90,
-                    40 + piece.grid_pos.row * 90,
-                )
-                return False
+            return False
 
         # handle collision, remove the piece
         self.check_collision_remove(piece, new_pos, target_sq_piece)
 
-        # update engine state, before moving the piece
-        self.state.engine_state = add_move_to_engine_state(
-            self.state.engine_state,
-            piece.grid_pos,
-            self.get_grid_at(new_pos),
-        )
-
         # move piece and update piece position
         if piece.move_to(self.get_grid_at(new_pos), self.state):
-            LOGGER.info(
-                f"Moved {piece.piece_colour.value} {piece.piece_type.value} {self.state.engine_state.move_stack[-1]}"
-            )
             self.state.changed_pieces.append(piece)
+
+            # update engine state, only if the move is valid
+            self.state.engine_state = add_move_to_engine_state(
+                self.state.engine_state,
+                original_pos,
+                self.get_grid_at(new_pos),
+                piece.piece_type,
+            )
+
+            if len(self.state.engine_state.move_stack) > 0:
+                LOGGER.info(
+                    f"Moved {piece.piece_colour.value} {piece.piece_type.value} {self.state.engine_state.move_stack[-1]}"
+                )
+            LOGGER.debug(f"\nBoard:\n{self.state.engine_state}")
+
             return True
 
         return False
@@ -219,9 +239,7 @@ class Board:
             and is_move_valid(
                 piece.grid_pos,
                 self.get_grid_at(new_pos),
-                piece.piece_type,
-                piece.piece_colour,
-                self.state,
+                self.state.engine_state,
             )
         ):
             self.remove_piece(target_sq_piece)
@@ -257,7 +275,7 @@ class Board:
                 piece.render()
 
         # update board state
-        self.state.update_board_state()
+        # self.state.update_board_state()
         self.state.changed_pieces.clear()
 
     def render(self) -> None:
@@ -269,6 +287,9 @@ class Board:
 
         # draw labels
         self.draw_labels()
+
+        # draw debug information
+        self.draw_debug()
 
         # draw positions
         self.draw_positions()
@@ -296,6 +317,6 @@ class Board:
             return GridPosition(-1, -1)
 
         col = (x - 40) // 90  # each square is 90 pixels
-        row = (y - 40) // 90
+        row = 7 - (y - 40) // 90  # reverse as y axis is inverted in pygame
 
         return GridPosition(row, col)

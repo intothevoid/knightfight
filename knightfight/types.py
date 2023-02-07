@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum
 import abc
+import chess
 
 # enum for the piece types
 class PieceType(Enum):
@@ -54,17 +55,5 @@ class State(abc.ABC):
     """
 
     @abc.abstractmethod
-    def get_cleared_state(self) -> dict:
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def update_board_state(self) -> None:
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def get_board_state(self) -> dict:
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def get_starting_positions(self) -> dict:
+    def get_board_state(self) -> chess.Board:
         raise NotImplementedError

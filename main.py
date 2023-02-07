@@ -2,9 +2,8 @@
 Knight Fight is a Chess game written using pygame.
 """
 
-from typing import Optional
-import pygame
 import sys
+import pygame
 
 from knightfight.board import Board
 from knightfight.state import BoardState
