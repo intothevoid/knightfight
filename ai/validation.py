@@ -10,18 +10,20 @@ from ai import engine
 from helpers.log import LOGGER
 
 
-def validate_move(board, old_pos, new_pos):
+def validate_move(board: chess.Board, old_pos: GridPosition, new_pos: GridPosition):
     old_square = engine.grid_position_to_square(old_pos)
     new_square = engine.grid_position_to_square(new_pos)
 
+    from_label = engine.grid_position_to_label(old_pos)
+    to_label = engine.grid_position_to_label(new_pos)
+
+    # check if the move is valid
     move = chess.Move(old_square, new_square)
 
     if move in board.legal_moves:
         return True
     else:
-        LOGGER.info(
-            f"Invalid move {board.peek()} From Square: {old_square} To Square: {new_square} Result:{board.result()}"
-        )
+        LOGGER.info(f"Invalid move {from_label} -> {to_label} Result:{board.result()}")
     return False
 
 

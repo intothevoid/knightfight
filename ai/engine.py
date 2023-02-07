@@ -82,15 +82,6 @@ def add_move_to_engine_state(
     return engine_state
 
 
-def is_king_in_check(engine_state: chess.Board, color: PieceColour) -> bool:
-    """
-    Check if the king of the given color is in check
-    """
-    if color == PieceColour.White:
-        return engine_state.is_check()
-    return engine_state.is_checkmate()
-
-
 def piece_type_to_piece(piece_type: PieceType) -> chess.PieceType:
     """
     Convert an internal PieceType to a chess.Piece
@@ -126,23 +117,6 @@ def position_to_grid_position(position: Tuple[int, int]) -> GridPosition:
     return GridPosition(row, col)
 
 
-def grid_position_to_position(grid_position: GridPosition) -> Tuple[int, int]:
-    """
-    Convert a grid position to a position
-    """
-    row = grid_position.row
-    col = grid_position.col
-    return (40 + row * 90, 40 + col * 90)
-
-
-def square_to_grid_position(square: int) -> GridPosition:
-    """
-    Convert a chess square to a grid position
-    """
-    row, col = divmod(square, 8)
-    return GridPosition(row, col)
-
-
 def grid_position_to_square(grid_position: GridPosition) -> int:
     """
     Convert a grid position to a chess square
@@ -157,3 +131,12 @@ def is_position_occupied(
     Check if a position is occupied on the board
     """
     return engine_state.piece_at(grid_position_to_square(grid_position)) is not None
+
+
+# grid position to label
+def grid_position_to_label(grid_position: GridPosition) -> str:
+    """
+    Convert a grid position to a label
+    """
+    collbl = ["a", "b", "c", "d", "e", "f", "g", "h"]
+    return f"{collbl[grid_position.col]}{grid_position.row + 1}"
