@@ -10,35 +10,6 @@ from knightfight.types import FEN_CONVERSION
 from helpers.log import LOGGER
 
 
-def state_to_engine_state(state_dict: dict) -> chess.Board:
-    """
-    Convert the board state (our internal represenation) to the engine state (FEN)
-    """
-    # Create a chess board
-    board = chess.Board()
-
-    # Set all pieces on the board
-    for color in state_dict:
-        for piece_type in state_dict[color]:
-            for grid_pos in state_dict[color][piece_type]:
-                row, col = grid_pos.row, grid_pos.col
-                piece = chess.Piece.from_symbol(
-                    FEN_CONVERSION[piece_type].upper()
-                    if color == PieceColour.White
-                    else FEN_CONVERSION[piece_type].lower()
-                )
-                board.set_piece_at(chess.square(col, row), piece)
-
-    # IMPORTANT!
-    # flip board as our interal representation is flipped
-    # compared to the engine state. python lists start at 0
-    board = board.transform(chess.flip_vertical)
-
-    # Return the engine state
-    LOGGER.debug(f"FEN: {board.fen()}")
-    return board
-
-
 def grid_pos_to_square(grid_pos: GridPosition) -> chess.Square:
     """
     Convert a grid position to a chess square
@@ -51,12 +22,6 @@ def grid_pos_to_move(start_pos: GridPosition, end_pos: GridPosition) -> chess.Mo
     """
     Convert a start and end grid position to a chess move
     """
-    # flip start_pos vertically as our internal representation is flipped
-    start_pos = GridPosition(start_pos.row, start_pos.col)
-
-    # flip end_pos vertically as our internal representation is flipped
-    end_pos = GridPosition(end_pos.row, end_pos.col)
-
     return chess.Move(grid_pos_to_square(start_pos), grid_pos_to_square(end_pos))
 
 

@@ -35,6 +35,9 @@ class Board:
         # initialize the pieces
         self.init_pieces()
 
+        # list of squares to highlight
+        self.highlighted_squares: List[int] = []
+
     def init_pieces(self) -> None:
         """
         Initialize the pieces on the board
@@ -275,7 +278,6 @@ class Board:
                 piece.render()
 
         # update board state
-        # self.state.update_board_state()
         self.state.changed_pieces.clear()
 
     def render(self) -> None:
@@ -296,6 +298,10 @@ class Board:
 
         # redraw pieces
         self.redraw_pieces()
+
+        # draw the highlight squares
+        if len(self.highlighted_squares) > 0:
+            self.highlight_squares()
 
     def get_piece_at(self, pos: Tuple[int, int]) -> List[Piece]:
         # a square can contain multiple pieces when a piece is being dragged
@@ -320,3 +326,31 @@ class Board:
         row = 7 - (y - 40) // 90  # reverse as y axis is inverted in pygame
 
         return GridPosition(row, col)
+
+    def highlight_squares(self):
+        """
+        Highlight squares from the list of highlighted squares
+        """
+        for square in self.highlighted_squares:
+            # get the square position
+            x, y = square_to_position(square)
+
+            # draw the rectangle
+            pygame.draw.rect(
+                self.window_surface,
+                (255, 0, 0),
+                (x, y, 90, 90),
+                5,
+            )
+
+    def add_highlight_square(self, square: chess.Square):
+        """
+        Add a square to the list of highlighted squares
+        """
+        self.highlighted_squares.append(square)
+
+    def clear_highlight_squares(self):
+        """
+        Clear the list of highlighted squares
+        """
+        self.highlighted_squares.clear()

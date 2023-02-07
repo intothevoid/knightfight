@@ -4,6 +4,8 @@ Knight Fight is a Chess game written using pygame.
 
 import sys
 import pygame
+import chess
+from ai.engine import grid_pos_to_move, grid_position_to_label
 
 from knightfight.board import Board
 from knightfight.state import BoardState
@@ -135,8 +137,47 @@ class KnightFight:
                             self.dragged_piece = None
                             board.state.dragged_piece = None
                             self.drag_offset = None
+                            frompos = grid_position_to_label(original_pos)
+                            topos = grid_position_to_label(moved_pos)
 
                             if piece_moved and original_pos != moved_pos:
+                                # clear any existing highlights
+                                board.clear_highlight_squares()
+                                board_copy = board.state.engine_state.copy()
+                                board_copy.pop()  # get rid of last move so we can see if check on last move
+                                move = grid_pos_to_move(original_pos, moved_pos)
+
+                                # See if move gives check
+                                if board_copy.gives_check(move):
+                                    play_sound("check.mp3", sound_vol)
+
+                                    king_square = board_copy.king(
+                                        True if turn == PieceColour.Black else False
+                                    )
+
+                                    # highlight square with red background for 5 seconds
+                                    if king_square:
+                                        board.add_highlight_square(king_square)
+
+                                    LOGGER.info(
+                                        f"King is in check from move {frompos} -> {topos}"
+                                    )
+
+                                # See if move gives check
+                                if board.state.engine_state.is_check():
+                                    play_sound("check.mp3", sound_vol)
+                                    LOGGER.info(
+                                        f"King is in check from move {frompos} -> {topos}"
+                                    )
+
+                                # See if move gives checkmate
+                                if board.state.engine_state.is_checkmate():
+                                    play_sound("checkmate.mp3", sound_vol)
+                                    LOGGER.info(
+                                        f"Checkmate from move {frompos} -> {topos}! GAME OVER"
+                                    )
+                                    game_over(screen, board.state)
+
                                 # change turn
                                 turn = (
                                     PieceColour.White
