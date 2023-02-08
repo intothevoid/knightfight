@@ -4,10 +4,11 @@ board:
   size: 800
   white_pieces: WhitePieces.png
 game:
+  cpu_enabled: true
   font_name: clarity.ttf
   grid_font_size: 10
   label_font_size: 20
-  music: true
+  music: false
   music_vol: 0.4
   players: 1
   show_debug: false
@@ -21,4 +22,4 @@ piece:
   size_x: 90
   size_y: 90
 state:
-  last_fen: rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq - 0 1
+  last_fen: 5r2/1R3pk1/3pQ2r/P1p3p1/2P1PPn1/N1K4p/6PP/2B2BNR w - - 0 43

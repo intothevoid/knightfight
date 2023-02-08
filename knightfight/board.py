@@ -2,6 +2,7 @@
 The board class to capture the state of the chess board.
 """
 
+import random
 from typing import Tuple, Optional, List
 import pygame
 import chess
@@ -37,6 +38,10 @@ class Board:
 
         # list of squares to highlight
         self.highlighted_squares: List[int] = []
+
+        # status text
+        self.status_text = ""
+        self.status_text_delay = 0
 
     def init_pieces(self) -> None:
         """
@@ -156,7 +161,7 @@ class Board:
             # draw column letters
             for col in range(8):
                 x = 40 + col * 90 + 40
-                y = 800 - 40
+                y = 800 - 35
 
                 grid_pos_text = grid_font.render(f"{chr(97 + col)}", True, (0, 0, 0))
                 self.window_surface.blit(
@@ -303,6 +308,10 @@ class Board:
         if len(self.highlighted_squares) > 0:
             self.highlight_squares()
 
+        # draw status text
+        if self.status_text:
+            self.draw_status_text()
+
     def get_piece_at(self, pos: Tuple[int, int]) -> List[Piece]:
         # a square can contain multiple pieces when a piece is being dragged
         # over an existing piece
@@ -354,3 +363,33 @@ class Board:
         Clear the list of highlighted squares
         """
         self.highlighted_squares.clear()
+
+    def draw_status_text(self):
+        """
+        Draw the labels on the board
+        """
+        # show text to indicate cpu is thinking
+        font_name = config.APP_CONFIG["game"]["font_name"]
+        font = pygame.font.Font(f"assets/{font_name}", 24)
+        text = font.render(self.status_text, True, (0, 0, 0))
+        text_rect = text.get_rect()
+        text_rect.center = (
+            config.APP_CONFIG["board"]["size"] / 2,
+            15,
+        )
+        self.window_surface.blit(text, text_rect)
+        pygame.display.update()
+
+        # wait between 1-3 seconds before making move
+        pygame.time.wait(self.status_text_delay)
+
+        # reset
+        self.status_text = ""
+        self.status_text_delay = 0
+
+    def set_status_text(self, text: str, delay: int = 0):
+        """
+        Set the status text
+        """
+        self.status_text = text
+        self.status_text_delay = delay

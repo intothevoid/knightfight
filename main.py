@@ -2,10 +2,13 @@
 Knight Fight is a Chess game written using pygame.
 """
 
+import random
 import sys
+import time
 import pygame
 import chess
 from ai.engine import grid_pos_to_move, grid_position_to_label
+from ai.lookup import CHESS_SQUARE_TO_POS
 
 from knightfight.board import Board
 from knightfight.state import BoardState
@@ -73,6 +76,10 @@ class KnightFight:
 
         # show splash screen
         # self.show_splash_screen(screen)
+
+        # players
+        cpu_enabled = config.APP_CONFIG["game"]["cpu_enabled"]
+        no_players = config.APP_CONFIG["game"]["players"]
 
         # setup board
         board = Board(screen)
@@ -172,7 +179,7 @@ class KnightFight:
 
                                 # See if move gives checkmate
                                 if board.state.engine_state.is_checkmate():
-                                    play_sound("checkmate.mp3", sound_vol)
+                                    play_sound("check_mate.mp3", sound_vol)
                                     LOGGER.info(
                                         f"Checkmate from move {frompos} -> {topos}! GAME OVER"
                                     )
@@ -181,12 +188,49 @@ class KnightFight:
                                 # change turn
                                 turn = (
                                     PieceColour.White
-                                    if turn == PieceColour.Black
+                                    if board.state.engine_state.turn
                                     else PieceColour.Black
                                 )
                                 play_sound("drop.mp3", sound_vol)
                             else:
                                 play_sound("invalid_move.mp3", sound_vol)
+
+                # if colour is black and cpu is enabled, make a move
+                # if cpu is enabled and 2 players, make a move i.e. both players are cpu
+                if (
+                    cpu_enabled and (turn == PieceColour.Black and no_players == 1)
+                ) or (cpu_enabled and no_players == 2):
+                    board.set_status_text("CPU is thinking...", 1000)
+                    board.render()
+
+                    # get random move from list of legal moves
+                    move = random.choice(list(board.state.engine_state.legal_moves))
+                    to_square = move.to_square
+                    from_square = move.from_square
+
+                    # get piece
+                    board.state.engine_state.piece_at(move.from_square)
+                    moved_piece = None
+                    for piece in board.state.pieces:
+                        if piece.square == from_square:
+                            moved_piece = piece
+
+                    new_pos = CHESS_SQUARE_TO_POS[to_square]
+                    if moved_piece:
+                        piece_moved = board.move_piece(moved_piece, new_pos)
+                        if piece_moved:
+                            play_sound("drop.mp3", sound_vol)
+                        else:
+                            play_sound("invalid_move.mp3", sound_vol)
+                    else:
+                        LOGGER.error(f"Piece not found at square {from_square}")
+
+                    # change turn
+                    turn = (
+                        PieceColour.White
+                        if board.state.engine_state.turn
+                        else PieceColour.Black
+                    )
 
                 # update the display
                 if board.state.engine_state.is_game_over():
