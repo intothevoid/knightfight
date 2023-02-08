@@ -232,6 +232,9 @@ class KnightFight:
                         else PieceColour.Black
                     )
 
+                    # clear any existing highlights
+                    board.clear_highlight_squares()
+
                 # update the display
                 if board.state.engine_state.is_game_over():
                     game_over(screen, board.state)

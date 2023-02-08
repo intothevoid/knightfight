@@ -8,7 +8,7 @@ game:
   font_name: clarity.ttf
   grid_font_size: 10
   label_font_size: 20
-  music: false
+  music: true
   music_vol: 0.4
   players: 1
   show_debug: false
@@ -22,4 +22,4 @@ piece:
   size_x: 90
   size_y: 90
 state:
-  last_fen: 5r2/1R3pk1/3pQ2r/P1p3p1/2P1PPn1/N1K4p/6PP/2B2BNR w - - 0 43
+  last_fen: 2r3kb/ppp5/n6r/4B1N1/7p/3PP3/PPP2PPP/RN2K2R w KQ - 1 18
