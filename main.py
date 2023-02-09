@@ -238,7 +238,10 @@ class KnightFight:
                 play_sound("check.mp3", sound_vol)
 
                 king_square = board_copy.king(
-                    True if turn == PieceColour.Black else False
+                    # get king square for opposite colour
+                    True
+                    if turn == PieceColour.Black
+                    else False
                 )
 
                 # highlight square with red background for 5 seconds

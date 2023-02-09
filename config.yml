@@ -3,6 +3,9 @@ board:
   image: board_plain_02.png
   size: 800
   white_pieces: WhitePieces.png
+cpu:
+  ai: piece_squares
+  delay: 2000
 game:
   font_name: clarity.ttf
   grid_font_size: 10
@@ -18,11 +21,8 @@ game:
   sound: true
   sound_vol: 1.0
   soundtrack: clouds.mp3
-cpu:
-  ai: piece_squares
-  delay: 2000
 piece:
   size_x: 90
   size_y: 90
 state:
-  last_fen: r1bqkb1r/ppp1pppp/3p4/2nP4/8/8/PPP2PPP/RNB1KBNR w KQkq - 0 7
+  last_fen: r1bqkb1r/pppppppp/2n2n2/8/5P2/5N2/PPPPP1PP/RNBQKB1R w KQkq - 3 3

@@ -2,6 +2,7 @@
 The board class to capture the state of the chess board.
 """
 
+import math
 import random
 from typing import Tuple, Optional, List
 import pygame
@@ -42,6 +43,9 @@ class Board:
         # status text
         self.status_text = ""
         self.status_text_delay = 0
+
+        # for arrow from start to end square of last move
+        self.last_move_arrow = None
 
     def init_pieces(self) -> None:
         """
@@ -192,6 +196,8 @@ class Board:
         pieces = self.get_piece_at(new_pos)
         target_sq_piece = None
         original_pos = piece.grid_pos
+        start_square = piece.square
+        end_square = piece.square
 
         # if piece gets detected at the target square
         if len(pieces) > 1:
@@ -226,6 +232,12 @@ class Board:
                 self.get_grid_at(new_pos),
                 piece.piece_type,
             )
+
+            # update end square
+            end_square = piece.square
+
+            # update last move arrow
+            self.last_move_arrow = (start_square, end_square)
 
             if len(self.state.engine_state.move_stack) > 0:
                 LOGGER.info(
@@ -303,6 +315,9 @@ class Board:
 
         # redraw pieces
         self.redraw_pieces()
+        # draw last move arrow
+        if self.last_move_arrow:
+            self.draw_last_move_arrow()
 
         # draw the highlight squares
         if len(self.highlighted_squares) > 0:
@@ -393,3 +408,50 @@ class Board:
         """
         self.status_text = text
         self.status_text_delay = delay
+
+    # draw the last move arrow
+    def draw_last_move_arrow(self):
+        if self.last_move_arrow:
+            start_pos = square_to_position(self.last_move_arrow[0])
+            end_pos = square_to_position(self.last_move_arrow[1])
+
+            # draw arrow
+            self.draw_arrow(
+                (
+                    start_pos[0] + 45,
+                    start_pos[1] + 45,
+                ),  # add 45 to get the center of the square
+                (
+                    end_pos[0] + 45,
+                    end_pos[1] + 45,
+                ),  # add 45 to get the center of the square
+                (21, 26, 0),
+                1,
+            )
+
+    # draw an arrow
+    def draw_arrow(self, start_pos, end_pos, colour=(192, 192, 192), width=1):
+        # draw small circle at start position
+        pygame.draw.circle(
+            self.window_surface,
+            colour,
+            start_pos,
+            5,
+        )
+
+        # draw small circle at end position
+        pygame.draw.circle(
+            self.window_surface,
+            colour,
+            end_pos,
+            5,
+        )
+
+        # draw line
+        pygame.draw.line(
+            self.window_surface,
+            colour,
+            start_pos,
+            end_pos,
+            width,
+        )
