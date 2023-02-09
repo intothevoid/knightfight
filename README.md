@@ -17,13 +17,13 @@ Grid lines and positions overlay (configurable)
 ## Features
 1. Multiple modes - Human v Human, CPU v Human, CPU vs CPU 
 2. Follows standard Chess rules (Now powered by python-chess)
-3. Sound effects and music!
-4. Configurable options
+3. Retro sound effects and music!
+4. Lots of configurable options
 5. Debug mode to highlight positions and grid
 6. Undo last move - coming soon!
 7. Change board styles
 8. Multiplayer - coming soon!
-9. Smarter CPU player - coming soon!
+9. Smarter CPU player https://www.chessprogramming.org/Simplified_Evaluation_Function
 
 ## Installation
 
@@ -48,3 +48,5 @@ Music assets by wyver https://wyver9.itch.io/8-bit-beatem-up-soundtrack
 Midjourney - Knight Fight Splash Image https://midjourney.com/
 
 python-chess - https://python-chess.readthedocs.io/en/latest/
+
+Simplified Evaluation Function - https://www.chessprogramming.org/Simplified_Evaluation_Function 

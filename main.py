@@ -84,12 +84,14 @@ class KnightFight:
         p2_type = config.APP_CONFIG["game"]["player2"].lower().strip()
 
         # max ai players = 2 cpu vs cpu
-        ai_white = AIPlayer(chess.WHITE)
-        ai_black = AIPlayer(chess.BLACK)
+        ai = config.APP_CONFIG["cpu"]["ai"]  # use basic / piece_squares ai
+        ai_white = AIPlayer(chess.WHITE, sound_vol, ai)
+        ai_black = AIPlayer(chess.BLACK, sound_vol, ai)
         AI_PLAYERS = {
             PieceColour.White: ai_white,
             PieceColour.Black: ai_black,
         }
+        cpu_delay = config.APP_CONFIG["cpu"]["delay"]  # delay between moves
 
         # setup board
         board = Board(screen)
@@ -170,7 +172,7 @@ class KnightFight:
                     or p2_type == "cpu"
                     and turn == PieceColour.Black
                 ):
-                    board.set_status_text("CPU is thinking...", 1000)
+                    board.set_status_text("CPU is thinking...", cpu_delay)
                     board.render()
 
                     # get random move from list of legal moves
@@ -274,9 +276,6 @@ def game_over(screen: pygame.surface.Surface, state: BoardState):
     font_name = config.APP_CONFIG["game"]["font_name"]
     font = pygame.font.Font(f"assets/{font_name}", 72)
 
-    # draw image on screen at location config.APP_CONFIG["board"]["size"] // 2,
-    # config.APP_CONFIG["board"]["size"] // 2
-
     winner_piece = None
     for piece in state.pieces:
         if piece.piece_type == PieceType.King:
@@ -285,11 +284,14 @@ def game_over(screen: pygame.surface.Surface, state: BoardState):
 
     # set up text
     text = font.render("Game Over", True, (255, 255, 255))
+    text_blk = font.render("Game Over", True, (0, 0, 0))
     text_rect = text.get_rect()
     text_rect.center = (
         config.APP_CONFIG["board"]["size"] // 2,
         config.APP_CONFIG["board"]["size"] // 2,
     )
+    screen.blit(text_blk, text_rect)
+    pygame.display.update()
 
     # set up font
     win_text = "White" if state.winner == PieceColour.White else "Black"

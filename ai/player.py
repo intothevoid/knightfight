@@ -1,24 +1,31 @@
 import random
-from typing import Optional, Tuple
 import chess
 from ai.lookup import CHESS_SQUARE_TO_POS
+from config.config import APP_CONFIG
 from helpers.log import LOGGER
 from knightfight.board import Board
-from knightfight.types import GridPosition
 from sound.playback import play_sound
+from ai.piece_squares import selectmove
 
 
 class AIPlayer:
-    def __init__(self, color: chess.Color, sound_vol: float = 1.0):
+    def __init__(self, color: chess.Color, sound_vol: float = 1.0, ai: str = "basic"):
         self.color = color
         self.sound_vol = sound_vol
         self.original_pos = None
         self.new_pos = None
+        self.ai = ai
 
     def move(self, board: Board) -> bool:
         legal_moves = list(board.state.engine_state.legal_moves)
         if len(legal_moves) > 0:
-            move = random.choice(legal_moves) if legal_moves else None
+            if self.ai == "piece_squares":
+                move = selectmove(board.state.engine_state, 3)
+            else:
+                move = random.choice(legal_moves) if legal_moves else None
+
+            if move in legal_moves:
+                print("LEGAL SHIT GOING ON HERE")
 
             # update board with move
             if move:
