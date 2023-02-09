@@ -1,23 +1,26 @@
+board:
+  black_pieces: BlackPieces.png
+  image: board_plain_02.png
+  size: 800
+  white_pieces: WhitePieces.png
 game:
-  players: 1 # valid values are 1, 2
-  sound: true
-  music: true
-  sound_vol: 1.0
-  music_vol: 0.4
-  soundtrack: "clouds.mp3"
-  show_grid: true
-  show_positions: true
-  font_name: "clarity.ttf"
+  cpu_enabled: true
+  font_name: clarity.ttf
   grid_font_size: 10
   label_font_size: 20
+  music: true
+  music_vol: 0.4
+  player1: cpu
+  player2: cpu
+  show_debug: false
+  show_grid: false
   show_labels: true
-
-board:
-  image: "board_plain_02.png"
-  white_pieces: "WhitePieces.png"
-  black_pieces: "BlackPieces.png"
-  size: 800 # pixels
-
+  show_positions: false
+  sound: true
+  sound_vol: 1.0
+  soundtrack: clouds.mp3
 piece:
   size_x: 90
   size_y: 90
+state:
+  last_fen: 8/8/1R2k3/8/2P2P2/1p1P3p/4n2K/7b b - - 11 78

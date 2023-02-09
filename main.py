@@ -2,14 +2,17 @@
 Knight Fight is a Chess game written using pygame.
 """
 
-from typing import Optional
-import pygame
+import random
 import sys
+import traceback
+import pygame
+from ai.engine import grid_pos_to_move, grid_position_to_label
+from ai.lookup import CHESS_SQUARE_TO_POS
 
-from chess.board import Board
-from chess.state import BoardState
+from knightfight.board import Board
+from knightfight.state import BoardState
 from config import config
-from chess.types import PieceColour, PieceType
+from knightfight.types import PieceColour, PieceType
 from helpers.log import LOGGER
 from sound.playback import play_music, play_sound
 
@@ -73,6 +76,11 @@ class KnightFight:
         # show splash screen
         # self.show_splash_screen(screen)
 
+        # players
+        cpu_enabled = config.APP_CONFIG["game"]["cpu_enabled"]
+        player1 = config.APP_CONFIG["game"]["player1"].lower().strip()
+        player2 = config.APP_CONFIG["game"]["player2"].lower().strip()
+
         # setup board
         board = Board(screen)
 
@@ -88,6 +96,10 @@ class KnightFight:
             while True:
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
+                        # get last fen and save to config
+                        fen = board.state.engine_state.fen()
+                        config.APP_CONFIG["state"]["last_fen"] = str(fen)
+                        config.save_config()
                         pygame.quit()
                         sys.exit()
                     elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -102,12 +114,17 @@ class KnightFight:
                                     pos[0] - clicked_piece.piece_rect.x,
                                     pos[1] - clicked_piece.piece_rect.y,
                                 )
+                            else:
+                                play_sound("invalid_move.mp3", sound_vol)
                         except IndexError:
                             # no piece at position
                             pass
                     elif event.type == pygame.MOUSEMOTION:
                         # update piece position if drag drop is active
                         if self.dragged_piece:
+                            # dragged piece to board state to allow rendering
+                            # of piece on top of other pieces
+                            board.state.dragged_piece = self.dragged_piece
                             pos = pygame.mouse.get_pos()
                             if self.drag_offset:
                                 self.dragged_piece.piece_rect.x = (
@@ -125,38 +142,125 @@ class KnightFight:
                             piece_moved = board.move_piece(self.dragged_piece, pos)
                             moved_pos = self.dragged_piece.grid_pos
                             self.dragged_piece = None
+                            board.state.dragged_piece = None
                             self.drag_offset = None
+                            frompos = grid_position_to_label(original_pos)
+                            topos = grid_position_to_label(moved_pos)
 
                             if piece_moved and original_pos != moved_pos:
+                                # clear any existing highlights
+                                board.clear_highlight_squares()
+                                board_copy = board.state.engine_state.copy()
+                                board_copy.pop()  # get rid of last move from copy so we can see if check on last move
+                                move = grid_pos_to_move(original_pos, moved_pos)
+
+                                # See if move gives check
+                                if board_copy.gives_check(move):
+                                    play_sound("check.mp3", sound_vol)
+
+                                    king_square = board_copy.king(
+                                        True if turn == PieceColour.Black else False
+                                    )
+
+                                    # highlight square with red background for 5 seconds
+                                    if king_square:
+                                        board.add_highlight_square(king_square)
+
+                                    LOGGER.info(
+                                        f"King is in check from move {frompos} -> {topos}"
+                                    )
+
+                                # See if move gives check
+                                if board.state.engine_state.is_check():
+                                    play_sound("check.mp3", sound_vol)
+                                    LOGGER.info(
+                                        f"King is in check from move {frompos} -> {topos}"
+                                    )
+
+                                # See if move gives checkmate
+                                if board.state.engine_state.is_checkmate():
+                                    play_sound("check_mate.mp3", sound_vol)
+                                    LOGGER.info(
+                                        f"Checkmate from move {frompos} -> {topos}! GAME OVER!"
+                                    )
+                                    game_over(screen, board.state)
+
                                 # change turn
                                 turn = (
                                     PieceColour.White
-                                    if turn == PieceColour.Black
+                                    if board.state.engine_state.turn
                                     else PieceColour.Black
                                 )
                                 play_sound("drop.mp3", sound_vol)
                             else:
                                 play_sound("invalid_move.mp3", sound_vol)
 
+                # if either player is cpu, make a move
+                if (
+                    player1 == "cpu"
+                    and turn == PieceColour.White
+                    or player2 == "cpu"
+                    and turn == PieceColour.Black
+                ):
+                    board.set_status_text("CPU is thinking...", 1000)
+                    board.render()
+
+                    # get random move from list of legal moves
+                    move_set = list(board.state.engine_state.legal_moves)
+                    move = None
+                    if len(move_set) > 0:
+                        move = random.choice(move_set)
+                        to_square = move.to_square
+                        from_square = move.from_square
+
+                        # get piece
+                        board.state.engine_state.piece_at(move.from_square)
+                        moved_piece = None
+                        for piece in board.state.pieces:
+                            if piece.square == from_square:
+                                moved_piece = piece
+
+                        new_pos = CHESS_SQUARE_TO_POS[to_square]
+                        if moved_piece:
+                            piece_moved = board.move_piece(moved_piece, new_pos)
+                            if piece_moved:
+                                play_sound("drop.mp3", sound_vol)
+                            else:
+                                play_sound("invalid_move.mp3", sound_vol)
+                        else:
+                            LOGGER.error(f"Piece not found at square {from_square}")
+
+                        # change turn
+                        turn = (
+                            PieceColour.White
+                            if board.state.engine_state.turn
+                            else PieceColour.Black
+                        )
+
+                        # clear any existing highlights
+                        board.clear_highlight_squares()
+
                 # update the display
-                if board.state.game_over:
+                if board.state.engine_state.is_game_over():
                     game_over(screen, board.state)
                 else:
                     board.render()
                     pygame.display.update()
 
         except Exception as exc:
-            LOGGER.error(exc)
+            # show stack trace
+            LOGGER.error(f"Error: {exc} Stack trace: {traceback.format_exc()}")
 
 
 # function to blank the screen and display game over message
 def game_over(screen: pygame.surface.Surface, state: BoardState):
     # set up font
     font_name = config.APP_CONFIG["game"]["font_name"]
-    font_size = config.APP_CONFIG["game"]["grid_font_size"]
     font = pygame.font.Font(f"assets/{font_name}", 72)
 
-    # draw image on screen at location config.APP_CONFIG["board"]["size"] // 2, config.APP_CONFIG["board"]["size"] // 2
+    # draw image on screen at location config.APP_CONFIG["board"]["size"] // 2,
+    # config.APP_CONFIG["board"]["size"] // 2
+
     winner_piece = None
     for piece in state.pieces:
         if piece.piece_type == PieceType.King:
@@ -195,6 +299,10 @@ def game_over(screen: pygame.surface.Surface, state: BoardState):
     pygame.display.update()
 
 
-if __name__ == "__main__":
+def start():
     chess = KnightFight()
     chess.run()
+
+
+if __name__ == "__main__":
+    start()

@@ -4,13 +4,14 @@ The piece class to capture the state of the chess pieces.
 
 import pygame
 from dataclasses import dataclass
+from ai.engine import grid_position_to_square, square_to_position
 from helpers.log import LOGGER
 from typing import Tuple, Any
 from config import config
-from chess.converter import convert_grid_pos_to_algebraic_notation
-from ai.movement import is_move_valid
-from chess.state import BoardState, PieceColour, PieceType
-from chess.types import GridPosition
+from knightfight.converter import convert_grid_pos_to_algebraic_notation
+from ai.validation import is_move_valid
+from knightfight.state import BoardState, PieceColour, PieceType
+from knightfight.types import GridPosition
 
 
 def get_piece_from_strip(
@@ -50,16 +51,20 @@ class Piece:
         window_surface,
         piece_type: PieceType,
         piece_colour: PieceColour,
-        piece_pos: Tuple[int, int],
+        piece_pos_x: int,
+        piece_pos_y: int,
         grid_pos: GridPosition,
+        square: int,  # chess engine square
     ) -> None:
         size_x = config.APP_CONFIG["piece"]["size_x"]
         size_y = config.APP_CONFIG["piece"]["size_y"]
         self.window_surface = window_surface
         self.piece_type = piece_type
         self.piece_colour = piece_colour
-        self.piece_pos = piece_pos
+        self.piece_pos_x = piece_pos_x
+        self.piece_pos_y = piece_pos_y
         self.grid_pos = grid_pos
+        self.square = square
 
         if piece_colour == PieceColour.White:
             self.piece_image, _ = get_piece_from_strip(
@@ -73,7 +78,8 @@ class Piece:
         self.piece_image = pygame.transform.scale(self.piece_image, (size_x, size_y))
 
         self.piece_rect = self.piece_image.get_rect()
-        self.piece_rect.topleft = piece_pos
+        self.piece_rect.left = piece_pos_x
+        self.piece_rect.top = piece_pos_y
 
     def __eq__(self, other):
         """
@@ -85,36 +91,35 @@ class Piece:
             and self.grid_pos == other.grid_pos
         )
 
-    def move_to(self, new_grid_pos: GridPosition, board_state: BoardState):
+    def move_to(self, new_grid_pos: GridPosition, board_state: BoardState) -> bool:
 
         if new_grid_pos is None or new_grid_pos.row is None or new_grid_pos.col is None:
-            return
+            return False
 
         if new_grid_pos.row == -1 or new_grid_pos.col == -1:
-            return
+            return False
 
         # check if move is valid
         if not is_move_valid(
-            self.grid_pos, new_grid_pos, self.piece_type, self.piece_colour, board_state
+            self.grid_pos,
+            new_grid_pos,
+            board_state.engine_state,
         ):
-            # go back to old position
-            self.piece_rect.topleft = (
-                40 + self.grid_pos.col * 90,
-                40 + self.grid_pos.row * 90,
-            )
-        else:
-            LOGGER.debug(
-                f"{self.piece_colour.value} {self.piece_type.value} moved {convert_grid_pos_to_algebraic_notation(self.grid_pos)} -> {convert_grid_pos_to_algebraic_notation(new_grid_pos)}"
-            )
 
+            # update position
+            self.piece_rect.topleft = square_to_position(self.square)
+
+            return False
+        else:
             self.grid_pos = new_grid_pos
 
-            # margin is 40 pixels
-            # each square is 90x90 pixels
-            self.piece_rect.topleft = (
-                40 + new_grid_pos.col * 90,
-                40 + new_grid_pos.row * 90,
-            )
+            # update chess engine square
+            self.square = grid_position_to_square(self.grid_pos)
+
+            # update position
+            self.piece_rect.topleft = square_to_position(self.square)
+
+            return True
 
     def render(self) -> None:
         self.window_surface.blit(self.piece_image, self.piece_rect)

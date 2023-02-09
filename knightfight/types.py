@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 from enum import Enum
+import abc
+import chess
 
 # enum for the piece types
-
-
 class PieceType(Enum):
     Bishop = "Bishop"
     King = "King"
@@ -19,6 +19,16 @@ class PieceColour(Enum):
     Black = "B"
     White = "W"
     Empty = "Empty"
+
+
+FEN_CONVERSION = {
+    PieceType.Pawn: "p",
+    PieceType.Knight: "n",
+    PieceType.Rook: "r",
+    PieceType.Bishop: "b",
+    PieceType.Queen: "q",
+    PieceType.King: "k",
+}
 
 
 @dataclass
@@ -37,3 +47,13 @@ class GridPosition:
         if isinstance(other, GridPosition):
             return self.row == other.row and self.col == other.col
         return False
+
+
+class State(abc.ABC):
+    """
+    Abstract class for the board state
+    """
+
+    @abc.abstractmethod
+    def get_board_state(self) -> chess.Board:
+        raise NotImplementedError
