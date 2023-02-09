@@ -4,9 +4,8 @@ Knight Fight is a Chess game written using pygame.
 
 import random
 import sys
-import time
+import traceback
 import pygame
-import chess
 from ai.engine import grid_pos_to_move, grid_position_to_label
 from ai.lookup import CHESS_SQUARE_TO_POS
 
@@ -79,7 +78,8 @@ class KnightFight:
 
         # players
         cpu_enabled = config.APP_CONFIG["game"]["cpu_enabled"]
-        no_players = config.APP_CONFIG["game"]["players"]
+        player1 = config.APP_CONFIG["game"]["player1"].lower().strip()
+        player2 = config.APP_CONFIG["game"]["player2"].lower().strip()
 
         # setup board
         board = Board(screen)
@@ -151,7 +151,7 @@ class KnightFight:
                                 # clear any existing highlights
                                 board.clear_highlight_squares()
                                 board_copy = board.state.engine_state.copy()
-                                board_copy.pop()  # get rid of last move so we can see if check on last move
+                                board_copy.pop()  # get rid of last move from copy so we can see if check on last move
                                 move = grid_pos_to_move(original_pos, moved_pos)
 
                                 # See if move gives check
@@ -181,7 +181,7 @@ class KnightFight:
                                 if board.state.engine_state.is_checkmate():
                                     play_sound("check_mate.mp3", sound_vol)
                                     LOGGER.info(
-                                        f"Checkmate from move {frompos} -> {topos}! GAME OVER"
+                                        f"Checkmate from move {frompos} -> {topos}! GAME OVER!"
                                     )
                                     game_over(screen, board.state)
 
@@ -195,45 +195,50 @@ class KnightFight:
                             else:
                                 play_sound("invalid_move.mp3", sound_vol)
 
-                # if colour is black and cpu is enabled, make a move
-                # if cpu is enabled and 2 players, make a move i.e. both players are cpu
+                # if either player is cpu, make a move
                 if (
-                    cpu_enabled and (turn == PieceColour.Black and no_players == 1)
-                ) or (cpu_enabled and no_players == 2):
+                    player1 == "cpu"
+                    and turn == PieceColour.White
+                    or player2 == "cpu"
+                    and turn == PieceColour.Black
+                ):
                     board.set_status_text("CPU is thinking...", 1000)
                     board.render()
 
                     # get random move from list of legal moves
-                    move = random.choice(list(board.state.engine_state.legal_moves))
-                    to_square = move.to_square
-                    from_square = move.from_square
+                    move_set = list(board.state.engine_state.legal_moves)
+                    move = None
+                    if len(move_set) > 0:
+                        move = random.choice(move_set)
+                        to_square = move.to_square
+                        from_square = move.from_square
 
-                    # get piece
-                    board.state.engine_state.piece_at(move.from_square)
-                    moved_piece = None
-                    for piece in board.state.pieces:
-                        if piece.square == from_square:
-                            moved_piece = piece
+                        # get piece
+                        board.state.engine_state.piece_at(move.from_square)
+                        moved_piece = None
+                        for piece in board.state.pieces:
+                            if piece.square == from_square:
+                                moved_piece = piece
 
-                    new_pos = CHESS_SQUARE_TO_POS[to_square]
-                    if moved_piece:
-                        piece_moved = board.move_piece(moved_piece, new_pos)
-                        if piece_moved:
-                            play_sound("drop.mp3", sound_vol)
+                        new_pos = CHESS_SQUARE_TO_POS[to_square]
+                        if moved_piece:
+                            piece_moved = board.move_piece(moved_piece, new_pos)
+                            if piece_moved:
+                                play_sound("drop.mp3", sound_vol)
+                            else:
+                                play_sound("invalid_move.mp3", sound_vol)
                         else:
-                            play_sound("invalid_move.mp3", sound_vol)
-                    else:
-                        LOGGER.error(f"Piece not found at square {from_square}")
+                            LOGGER.error(f"Piece not found at square {from_square}")
 
-                    # change turn
-                    turn = (
-                        PieceColour.White
-                        if board.state.engine_state.turn
-                        else PieceColour.Black
-                    )
+                        # change turn
+                        turn = (
+                            PieceColour.White
+                            if board.state.engine_state.turn
+                            else PieceColour.Black
+                        )
 
-                    # clear any existing highlights
-                    board.clear_highlight_squares()
+                        # clear any existing highlights
+                        board.clear_highlight_squares()
 
                 # update the display
                 if board.state.engine_state.is_game_over():
@@ -243,7 +248,8 @@ class KnightFight:
                     pygame.display.update()
 
         except Exception as exc:
-            LOGGER.error(exc)
+            # show stack trace
+            LOGGER.error(f"Error: {exc} Stack trace: {traceback.format_exc()}")
 
 
 # function to blank the screen and display game over message
@@ -252,7 +258,9 @@ def game_over(screen: pygame.surface.Surface, state: BoardState):
     font_name = config.APP_CONFIG["game"]["font_name"]
     font = pygame.font.Font(f"assets/{font_name}", 72)
 
-    # draw image on screen at location config.APP_CONFIG["board"]["size"] // 2, config.APP_CONFIG["board"]["size"] // 2
+    # draw image on screen at location config.APP_CONFIG["board"]["size"] // 2,
+    # config.APP_CONFIG["board"]["size"] // 2
+
     winner_piece = None
     for piece in state.pieces:
         if piece.piece_type == PieceType.King:

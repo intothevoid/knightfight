@@ -370,7 +370,7 @@ class Board:
         """
         # show text to indicate cpu is thinking
         font_name = config.APP_CONFIG["game"]["font_name"]
-        font = pygame.font.Font(f"assets/{font_name}", 24)
+        font = pygame.font.Font(f"assets/{font_name}", 16)
         text = font.render(self.status_text, True, (0, 0, 0))
         text_rect = text.get_rect()
         text_rect.center = (

@@ -10,7 +10,8 @@ game:
   label_font_size: 20
   music: true
   music_vol: 0.4
-  players: 1
+  player1: cpu
+  player2: cpu
   show_debug: false
   show_grid: false
   show_labels: true
@@ -22,4 +23,4 @@ piece:
   size_x: 90
   size_y: 90
 state:
-  last_fen: 2r3kb/ppp5/n6r/4B1N1/7p/3PP3/PPP2PPP/RN2K2R w KQ - 1 18
+  last_fen: 8/8/1R2k3/8/2P2P2/1p1P3p/4n2K/7b b - - 11 78
