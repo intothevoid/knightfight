@@ -3,14 +3,17 @@ board:
   image: board_plain_02.png
   size: 800
   white_pieces: WhitePieces.png
+cpu:
+  ai: stockfish
+  complexity: 1
+  delay: 2000
 game:
-  cpu_enabled: true
   font_name: clarity.ttf
   grid_font_size: 10
   label_font_size: 20
   music: true
   music_vol: 0.4
-  player1: cpu
+  player1: human
   player2: cpu
   show_debug: false
   show_grid: false
@@ -23,4 +26,4 @@ piece:
   size_x: 90
   size_y: 90
 state:
-  last_fen: 8/8/1R2k3/8/2P2P2/1p1P3p/4n2K/7b b - - 11 78
+  last_fen: rnbqkb1r/pp1ppppp/5n2/8/2Pp4/8/PP1PPPPP/RNBQKB1R w KQkq - 0 4

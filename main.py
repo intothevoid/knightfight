@@ -2,19 +2,22 @@
 Knight Fight is a Chess game written using pygame.
 """
 
-import random
 import sys
 import traceback
 import pygame
-from ai.engine import grid_pos_to_move, grid_position_to_label
+import chess
+
+from helpers.conversions import grid_pos_to_move, grid_position_to_label
 from ai.lookup import CHESS_SQUARE_TO_POS
 
 from knightfight.board import Board
 from knightfight.state import BoardState
 from config import config
-from knightfight.types import PieceColour, PieceType
+from knightfight.types import GridPosition, PieceColour, PieceType
 from helpers.log import LOGGER
 from sound.playback import play_music, play_sound
+from ai.player import AIPlayer
+
 
 BOARD_BK_COLOUR = (255, 255, 255)
 BOARD_BK_COLOUR_BLACK = (0, 0, 0)
@@ -30,7 +33,7 @@ class KnightFight:
         Show splash screen on new window
         """
         # load splash screen image
-        splash_image = pygame.image.load("assets/logo.png")
+        splash_image = pygame.image.load("assets/images/logo.png")
 
         # set image size to 50% of board size
         splash_image = pygame.transform.scale(
@@ -77,9 +80,19 @@ class KnightFight:
         # self.show_splash_screen(screen)
 
         # players
-        cpu_enabled = config.APP_CONFIG["game"]["cpu_enabled"]
-        player1 = config.APP_CONFIG["game"]["player1"].lower().strip()
-        player2 = config.APP_CONFIG["game"]["player2"].lower().strip()
+        p1_type = config.APP_CONFIG["game"]["player1"].lower().strip()
+        p2_type = config.APP_CONFIG["game"]["player2"].lower().strip()
+
+        # max ai players = 2 cpu vs cpu
+        ai = config.APP_CONFIG["cpu"]["ai"]  # use basic / piece_squares ai
+        complexity = config.APP_CONFIG["cpu"]["complexity"]  # ai complexity
+        ai_white = AIPlayer(chess.WHITE, sound_vol, ai, complexity)
+        ai_black = AIPlayer(chess.BLACK, sound_vol, ai, complexity)
+        AI_PLAYERS = {
+            PieceColour.White: ai_white,
+            PieceColour.Black: ai_black,
+        }
+        cpu_delay = config.APP_CONFIG["cpu"]["delay"]  # delay between moves
 
         # setup board
         board = Board(screen)
@@ -144,104 +157,54 @@ class KnightFight:
                             self.dragged_piece = None
                             board.state.dragged_piece = None
                             self.drag_offset = None
-                            frompos = grid_position_to_label(original_pos)
-                            topos = grid_position_to_label(moved_pos)
 
-                            if piece_moved and original_pos != moved_pos:
-                                # clear any existing highlights
-                                board.clear_highlight_squares()
-                                board_copy = board.state.engine_state.copy()
-                                board_copy.pop()  # get rid of last move from copy so we can see if check on last move
-                                move = grid_pos_to_move(original_pos, moved_pos)
-
-                                # See if move gives check
-                                if board_copy.gives_check(move):
-                                    play_sound("check.mp3", sound_vol)
-
-                                    king_square = board_copy.king(
-                                        True if turn == PieceColour.Black else False
-                                    )
-
-                                    # highlight square with red background for 5 seconds
-                                    if king_square:
-                                        board.add_highlight_square(king_square)
-
-                                    LOGGER.info(
-                                        f"King is in check from move {frompos} -> {topos}"
-                                    )
-
-                                # See if move gives check
-                                if board.state.engine_state.is_check():
-                                    play_sound("check.mp3", sound_vol)
-                                    LOGGER.info(
-                                        f"King is in check from move {frompos} -> {topos}"
-                                    )
-
-                                # See if move gives checkmate
-                                if board.state.engine_state.is_checkmate():
-                                    play_sound("check_mate.mp3", sound_vol)
-                                    LOGGER.info(
-                                        f"Checkmate from move {frompos} -> {topos}! GAME OVER!"
-                                    )
-                                    game_over(screen, board.state)
-
-                                # change turn
-                                turn = (
-                                    PieceColour.White
-                                    if board.state.engine_state.turn
-                                    else PieceColour.Black
-                                )
-                                play_sound("drop.mp3", sound_vol)
-                            else:
-                                play_sound("invalid_move.mp3", sound_vol)
+                            turn = self.handle_piece_moved(
+                                board,
+                                turn,
+                                original_pos,
+                                moved_pos,
+                                piece_moved,
+                            )
 
                 # if either player is cpu, make a move
                 if (
-                    player1 == "cpu"
+                    p1_type == "cpu"
                     and turn == PieceColour.White
-                    or player2 == "cpu"
+                    or p2_type == "cpu"
                     and turn == PieceColour.Black
                 ):
-                    board.set_status_text("CPU is thinking...", 1000)
+                    board.set_status_text("CPU is thinking...", cpu_delay)
                     board.render()
 
                     # get random move from list of legal moves
-                    move_set = list(board.state.engine_state.legal_moves)
-                    move = None
-                    if len(move_set) > 0:
-                        move = random.choice(move_set)
-                        to_square = move.to_square
-                        from_square = move.from_square
+                    ai_moved = AI_PLAYERS[turn].move(board)
+                    original_pos = AI_PLAYERS[turn].original_pos
+                    moved_pos = AI_PLAYERS[turn].new_pos
 
-                        # get piece
-                        board.state.engine_state.piece_at(move.from_square)
-                        moved_piece = None
-                        for piece in board.state.pieces:
-                            if piece.square == from_square:
-                                moved_piece = piece
-
-                        new_pos = CHESS_SQUARE_TO_POS[to_square]
-                        if moved_piece:
-                            piece_moved = board.move_piece(moved_piece, new_pos)
-                            if piece_moved:
-                                play_sound("drop.mp3", sound_vol)
-                            else:
-                                play_sound("invalid_move.mp3", sound_vol)
-                        else:
-                            LOGGER.error(f"Piece not found at square {from_square}")
-
+                    if ai_moved and original_pos and moved_pos:
                         # change turn
-                        turn = (
-                            PieceColour.White
-                            if board.state.engine_state.turn
-                            else PieceColour.Black
+                        turn = self.handle_piece_moved(
+                            board,
+                            turn,
+                            original_pos,
+                            moved_pos,
+                            ai_moved,
                         )
 
                         # clear any existing highlights
                         board.clear_highlight_squares()
 
                 # update the display
-                if board.state.engine_state.is_game_over():
+                if (
+                    board.state.engine_state.is_game_over()
+                    or board.state.engine_state.is_stalemate()
+                    or board.state.engine_state.is_insufficient_material()
+                    or board.state.engine_state.is_seventyfive_moves()
+                    or board.state.engine_state.is_fivefold_repetition()
+                    or board.state.engine_state.can_claim_fifty_moves()
+                    or board.state.game_over
+                ):
+                    # get reason for game over
                     game_over(screen, board.state)
                 else:
                     board.render()
@@ -251,15 +214,71 @@ class KnightFight:
             # show stack trace
             LOGGER.error(f"Error: {exc} Stack trace: {traceback.format_exc()}")
 
+    def handle_piece_moved(
+        self,
+        board: Board,
+        turn: PieceColour,
+        original_pos: GridPosition,
+        moved_pos: GridPosition,
+        piece_moved: bool,
+    ):
+        sound_vol = config.APP_CONFIG["game"]["sound_vol"]
+
+        if piece_moved and original_pos != moved_pos:
+            frompos = grid_position_to_label(original_pos)
+            topos = grid_position_to_label(moved_pos)
+
+            # clear any existing highlights
+            board.clear_highlight_squares()
+            board_copy = board.state.engine_state.copy()
+            board_copy.pop()  # get rid of last move from copy so we can see if check on last move
+            move = grid_pos_to_move(original_pos, moved_pos)
+
+            # See if move gives check
+            if board_copy.gives_check(move):
+                play_sound("check.mp3", sound_vol)
+
+                king_square = board_copy.king(
+                    # get king square for opposite colour
+                    True
+                    if turn == PieceColour.Black
+                    else False
+                )
+
+                # highlight square with red background for 5 seconds
+                if king_square:
+                    board.add_highlight_square(king_square)
+
+                LOGGER.info(f"King is in check from move {frompos} -> {topos}")
+
+            # See if move gives check
+            if board.state.engine_state.is_check():
+                play_sound("check.mp3", sound_vol)
+                LOGGER.info(f"King is in check from move {frompos} -> {topos}")
+
+            # See if move gives checkmate
+            if board.state.engine_state.is_checkmate():
+                play_sound("check_mate.mp3", sound_vol)
+                LOGGER.info(f"Checkmate from move {frompos} -> {topos}! GAME OVER!")
+                board.state.game_over = True
+
+            # change turn
+            turn = (
+                PieceColour.White
+                if board.state.engine_state.turn
+                else PieceColour.Black
+            )
+            play_sound("drop.mp3", sound_vol)
+        else:
+            play_sound("invalid_move.mp3", sound_vol)
+        return turn
+
 
 # function to blank the screen and display game over message
 def game_over(screen: pygame.surface.Surface, state: BoardState):
     # set up font
     font_name = config.APP_CONFIG["game"]["font_name"]
-    font = pygame.font.Font(f"assets/{font_name}", 72)
-
-    # draw image on screen at location config.APP_CONFIG["board"]["size"] // 2,
-    # config.APP_CONFIG["board"]["size"] // 2
+    font = pygame.font.Font(f"assets/fonts/{font_name}", 72)
 
     winner_piece = None
     for piece in state.pieces:
@@ -269,15 +288,18 @@ def game_over(screen: pygame.surface.Surface, state: BoardState):
 
     # set up text
     text = font.render("Game Over", True, (255, 255, 255))
+    text_blk = font.render("Game Over", True, (0, 0, 0))
     text_rect = text.get_rect()
     text_rect.center = (
         config.APP_CONFIG["board"]["size"] // 2,
         config.APP_CONFIG["board"]["size"] // 2,
     )
+    screen.blit(text_blk, text_rect)
+    pygame.display.update()
 
     # set up font
     win_text = "White" if state.winner == PieceColour.White else "Black"
-    font2 = pygame.font.Font(f"assets/{font_name}", 48)
+    font2 = pygame.font.Font(f"assets/fonts/{font_name}", 48)
     text2 = font2.render(f"{win_text} wins!", True, (255, 255, 255))
     text_rect2 = text2.get_rect()
     text_rect2.center = (

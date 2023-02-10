@@ -2,11 +2,13 @@
 The board class to capture the state of the chess board.
 """
 
+import math
 import random
 from typing import Tuple, Optional, List
 import pygame
 import chess
-from ai.engine import add_move_to_engine_state, square_to_position
+from helpers.conversions import square_to_position
+from helpers.pychess import add_move_to_engine_state
 from animation.animation import display_sprite_animation
 from helpers.log import LOGGER
 from knightfight.piece import Piece
@@ -24,7 +26,7 @@ class Board:
 
         self.sound_vol = config.APP_CONFIG["game"]["sound_vol"]
         self.window_surface = window_surface
-        self.board_image = pygame.image.load(f"assets/{board_image}")
+        self.board_image = pygame.image.load(f"assets/images/{board_image}")
         self.board_rect = self.board_image.get_rect()
         self.board_rect.topleft = (0, 0)
         self.board_image = pygame.transform.scale(
@@ -42,6 +44,9 @@ class Board:
         # status text
         self.status_text = ""
         self.status_text_delay = 0
+
+        # for arrow from start to end square of last move
+        self.last_move_arrow = None
 
     def init_pieces(self) -> None:
         """
@@ -98,7 +103,7 @@ class Board:
         # draw text with rect.left, rect.top
         font_name = config.APP_CONFIG["game"]["font_name"]
         font_size = config.APP_CONFIG["game"]["grid_font_size"]
-        debug_font = pygame.font.Font(f"assets/{font_name}", font_size)
+        debug_font = pygame.font.Font(f"assets/fonts/{font_name}", font_size)
 
         # show grid if enabled in config
         if config.APP_CONFIG["game"]["show_debug"]:
@@ -121,7 +126,7 @@ class Board:
         if config.APP_CONFIG["game"]["show_positions"]:
             font_name = config.APP_CONFIG["game"]["font_name"]
             font_size = config.APP_CONFIG["game"]["grid_font_size"]
-            grid_font = pygame.font.Font(f"assets/{font_name}", font_size)
+            grid_font = pygame.font.Font(f"assets/fonts/{font_name}", font_size)
             for row in range(8):
                 for col in range(8):
                     x = 40 + col * 90 + 5
@@ -145,7 +150,7 @@ class Board:
         if config.APP_CONFIG["game"]["show_labels"]:
             font_name = config.APP_CONFIG["game"]["font_name"]
             font_size = config.APP_CONFIG["game"]["label_font_size"]
-            grid_font = pygame.font.Font(f"assets/{font_name}", font_size)
+            grid_font = pygame.font.Font(f"assets/fonts/{font_name}", font_size)
 
             # draw row numbers
             for row in range(0, 8):
@@ -192,6 +197,8 @@ class Board:
         pieces = self.get_piece_at(new_pos)
         target_sq_piece = None
         original_pos = piece.grid_pos
+        start_square = piece.square
+        end_square = piece.square
 
         # if piece gets detected at the target square
         if len(pieces) > 1:
@@ -227,6 +234,12 @@ class Board:
                 piece.piece_type,
             )
 
+            # update end square
+            end_square = piece.square
+
+            # update last move arrow
+            self.last_move_arrow = (start_square, end_square)
+
             if len(self.state.engine_state.move_stack) > 0:
                 LOGGER.info(
                     f"Moved {piece.piece_colour.value} {piece.piece_type.value} {self.state.engine_state.move_stack[-1]}"
@@ -256,7 +269,7 @@ class Board:
             # play explosion animation
             display_sprite_animation(
                 self.window_surface,
-                "assets/explosion.png",
+                "assets/images/explosion.png",
                 12,
                 target_sq_piece.piece_rect,
             )
@@ -303,6 +316,9 @@ class Board:
 
         # redraw pieces
         self.redraw_pieces()
+        # draw last move arrow
+        if self.last_move_arrow:
+            self.draw_last_move_arrow()
 
         # draw the highlight squares
         if len(self.highlighted_squares) > 0:
@@ -370,7 +386,7 @@ class Board:
         """
         # show text to indicate cpu is thinking
         font_name = config.APP_CONFIG["game"]["font_name"]
-        font = pygame.font.Font(f"assets/{font_name}", 16)
+        font = pygame.font.Font(f"assets/fonts/{font_name}", 16)
         text = font.render(self.status_text, True, (0, 0, 0))
         text_rect = text.get_rect()
         text_rect.center = (
@@ -393,3 +409,50 @@ class Board:
         """
         self.status_text = text
         self.status_text_delay = delay
+
+    # draw the last move arrow
+    def draw_last_move_arrow(self):
+        if self.last_move_arrow:
+            start_pos = square_to_position(self.last_move_arrow[0])
+            end_pos = square_to_position(self.last_move_arrow[1])
+
+            # draw arrow
+            self.draw_arrow(
+                (
+                    start_pos[0] + 45,
+                    start_pos[1] + 45,
+                ),  # add 45 to get the center of the square
+                (
+                    end_pos[0] + 45,
+                    end_pos[1] + 45,
+                ),  # add 45 to get the center of the square
+                (21, 26, 0),
+                1,
+            )
+
+    # draw an arrow
+    def draw_arrow(self, start_pos, end_pos, colour=(192, 192, 192), width=1):
+        # draw small circle at start position
+        pygame.draw.circle(
+            self.window_surface,
+            colour,
+            start_pos,
+            5,
+        )
+
+        # draw small circle at end position
+        pygame.draw.circle(
+            self.window_surface,
+            colour,
+            end_pos,
+            5,
+        )
+
+        # draw line
+        pygame.draw.line(
+            self.window_surface,
+            colour,
+            start_pos,
+            end_pos,
+            width,
+        )
