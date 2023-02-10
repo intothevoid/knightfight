@@ -26,7 +26,7 @@ class Board:
 
         self.sound_vol = config.APP_CONFIG["game"]["sound_vol"]
         self.window_surface = window_surface
-        self.board_image = pygame.image.load(f"assets/{board_image}")
+        self.board_image = pygame.image.load(f"assets/images/{board_image}")
         self.board_rect = self.board_image.get_rect()
         self.board_rect.topleft = (0, 0)
         self.board_image = pygame.transform.scale(
@@ -103,7 +103,7 @@ class Board:
         # draw text with rect.left, rect.top
         font_name = config.APP_CONFIG["game"]["font_name"]
         font_size = config.APP_CONFIG["game"]["grid_font_size"]
-        debug_font = pygame.font.Font(f"assets/{font_name}", font_size)
+        debug_font = pygame.font.Font(f"assets/fonts/{font_name}", font_size)
 
         # show grid if enabled in config
         if config.APP_CONFIG["game"]["show_debug"]:
@@ -126,7 +126,7 @@ class Board:
         if config.APP_CONFIG["game"]["show_positions"]:
             font_name = config.APP_CONFIG["game"]["font_name"]
             font_size = config.APP_CONFIG["game"]["grid_font_size"]
-            grid_font = pygame.font.Font(f"assets/{font_name}", font_size)
+            grid_font = pygame.font.Font(f"assets/fonts/{font_name}", font_size)
             for row in range(8):
                 for col in range(8):
                     x = 40 + col * 90 + 5
@@ -150,7 +150,7 @@ class Board:
         if config.APP_CONFIG["game"]["show_labels"]:
             font_name = config.APP_CONFIG["game"]["font_name"]
             font_size = config.APP_CONFIG["game"]["label_font_size"]
-            grid_font = pygame.font.Font(f"assets/{font_name}", font_size)
+            grid_font = pygame.font.Font(f"assets/fonts/{font_name}", font_size)
 
             # draw row numbers
             for row in range(0, 8):
@@ -269,7 +269,7 @@ class Board:
             # play explosion animation
             display_sprite_animation(
                 self.window_surface,
-                "assets/explosion.png",
+                "assets/images/explosion.png",
                 12,
                 target_sq_piece.piece_rect,
             )
@@ -386,7 +386,7 @@ class Board:
         """
         # show text to indicate cpu is thinking
         font_name = config.APP_CONFIG["game"]["font_name"]
-        font = pygame.font.Font(f"assets/{font_name}", 16)
+        font = pygame.font.Font(f"assets/fonts/{font_name}", 16)
         text = font.render(self.status_text, True, (0, 0, 0))
         text_rect = text.get_rect()
         text_rect.center = (

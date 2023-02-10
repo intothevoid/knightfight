@@ -33,7 +33,7 @@ class KnightFight:
         Show splash screen on new window
         """
         # load splash screen image
-        splash_image = pygame.image.load("assets/logo.png")
+        splash_image = pygame.image.load("assets/images/logo.png")
 
         # set image size to 50% of board size
         splash_image = pygame.transform.scale(
@@ -278,7 +278,7 @@ class KnightFight:
 def game_over(screen: pygame.surface.Surface, state: BoardState):
     # set up font
     font_name = config.APP_CONFIG["game"]["font_name"]
-    font = pygame.font.Font(f"assets/{font_name}", 72)
+    font = pygame.font.Font(f"assets/fonts/{font_name}", 72)
 
     winner_piece = None
     for piece in state.pieces:
@@ -299,7 +299,7 @@ def game_over(screen: pygame.surface.Surface, state: BoardState):
 
     # set up font
     win_text = "White" if state.winner == PieceColour.White else "Black"
-    font2 = pygame.font.Font(f"assets/{font_name}", 48)
+    font2 = pygame.font.Font(f"assets/fonts/{font_name}", 48)
     text2 = font2.render(f"{win_text} wins!", True, (255, 255, 255))
     text_rect2 = text2.get_rect()
     text_rect2.center = (

@@ -2,17 +2,17 @@
 
 > "Join the battle as a valiant knight, outsmart your opponent, and capture the enemy's king in this strategic and knightly game of Knight Fight Chess."
 
-<img src="https://raw.githubusercontent.com/intothevoid/knightfight/main/assets/logo.png" width="60%" height="60%"></img>
+<img src="https://raw.githubusercontent.com/intothevoid/knightfight/main/assets/images/logo.png" width="60%" height="60%"></img>
 
 Play chess on a pixelated retro board. Play against a CPU player or another friend.
 
-<img src="https://raw.githubusercontent.com/intothevoid/knightfight/main/assets/sshot.png" width="70%" height="70%"></img>
+<img src="https://raw.githubusercontent.com/intothevoid/knightfight/main/assets/images/sshot.png" width="70%" height="70%"></img>
 
-<img src="https://raw.githubusercontent.com/intothevoid/knightfight/main/assets/sshot_go.png" width="70%" height="70%"></img>
+<img src="https://raw.githubusercontent.com/intothevoid/knightfight/main/assets/images/sshot_go.png" width="70%" height="70%"></img>
 
 Grid lines and positions overlay (configurable)
 
-<img src="https://raw.githubusercontent.com/intothevoid/knightfight/main/assets/sshot_debug.png" width="70%" height="70%"></img>
+<img src="https://raw.githubusercontent.com/intothevoid/knightfight/main/assets/images/sshot_debug.png" width="70%" height="70%"></img>
 
 ## Features
 1. Multiple modes - Human v Human, CPU v Human, CPU vs CPU 

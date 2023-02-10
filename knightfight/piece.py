@@ -18,7 +18,7 @@ def get_piece_from_strip(
     image_file: str, piece_type: PieceType
 ) -> Tuple[pygame.Surface, Any]:
 
-    strip_image = pygame.image.load(f"assets/{image_file}")
+    strip_image = pygame.image.load(f"assets/images/{image_file}")
     piece_width = int(strip_image.get_width() / 6)
     piece_height = int(strip_image.get_height())
 
