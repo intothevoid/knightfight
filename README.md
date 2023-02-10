@@ -42,12 +42,17 @@ python3 main.py
 
 ## Powered By
 
-<img src="https://raw.githubusercontent.com/intothevoid/knightfight/main/assets/images/pygame.png"></img>
+<img src="https://raw.githubusercontent.com/intothevoid/knightfight/main/assets/images/pygame.png" height="25%" width="25%"></img>
+
 PyGame https://www.pygame.org/
 
-<img src="https://raw.githubusercontent.com/intothevoid/knightfight/main/assets/images/stockfish.png"></img>
+<img src="https://raw.githubusercontent.com/intothevoid/knightfight/main/assets/images/stockfish.png" height="25%" width="25%"></img>
+
 Stockfish https://github.com/official-stockfish/Stockfish
+
 GPL 3.0 License - See https://github.com/official-stockfish/Stockfish/blob/master/Copying.txt
+
+Source Code - https://github.com/official-stockfish/Stockfish/tree/master/src
 
 Dani Maccari's image assets https://dani-maccari.itch.io/
 
