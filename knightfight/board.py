@@ -2,8 +2,6 @@
 The board class to capture the state of the chess board.
 """
 
-import math
-import random
 from typing import Tuple, Optional, List
 import pygame
 import chess
@@ -247,6 +245,9 @@ class Board:
             LOGGER.debug(f"\nBoard:\n{self.state.engine_state}")
 
             return True
+        else:
+            # reset position
+            piece.piece_rect.topleft = square_to_position(piece.square)
 
         return False
 
