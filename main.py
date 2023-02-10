@@ -71,9 +71,8 @@ class KnightFight:
         screen = pygame.display.set_mode((board_size, board_size))
         screen.fill(BOARD_BK_COLOUR)
 
-        pygame.display.set_caption(
-            "Knight Fight - https://github.com/intothevoid/knightfight"
-        )
+        # set window title
+        pygame.display.set_caption("KNIGHT FIGHT")
         pygame.mouse.set_visible(True)
 
         # show splash screen
@@ -112,71 +111,73 @@ class KnightFight:
 
         try:
             # main loop
+            # check if game is over
+            game_over_flag = False
             while True:
-                # check if game is over
-                game_over_flag = False
 
-                if not game_over_flag:
-                    for event in pygame.event.get():
-                        if event.type == pygame.QUIT:
-                            # get last fen and save to config
-                            fen = board.state.engine_state.fen()
-                            config.APP_CONFIG["state"]["last_fen"] = str(fen)
-                            config.save_config()
-                            pygame.quit()
-                            sys.exit()
-                        elif event.type == pygame.MOUSEBUTTONDOWN:
-                            # check if a piece is clicked
-                            pos = pygame.mouse.get_pos()
-                            try:
-                                clicked_piece = board.get_piece_at(pos)[
-                                    0
-                                ]  # only one piece
-                                if clicked_piece and clicked_piece.piece_colour == turn:
-                                    # save starting position and start drag-drop event
-                                    self.dragged_piece = clicked_piece
-                                    self.drag_offset = (
-                                        pos[0] - clicked_piece.piece_rect.x,
-                                        pos[1] - clicked_piece.piece_rect.y,
-                                    )
-                                else:
-                                    play_sound("invalid_move.mp3", sound_vol)
-                            except IndexError:
-                                # no piece at position
-                                pass
-                        elif event.type == pygame.MOUSEMOTION:
-                            # update piece position if drag drop is active
-                            if self.dragged_piece:
-                                # dragged piece to board state to allow rendering
-                                # of piece on top of other pieces
-                                board.state.dragged_piece = self.dragged_piece
-                                pos = pygame.mouse.get_pos()
-                                if self.drag_offset:
-                                    self.dragged_piece.piece_rect.x = (
-                                        pos[0] - self.drag_offset[0]
-                                    )
-                                    self.dragged_piece.piece_rect.y = (
-                                        pos[1] - self.drag_offset[1]
-                                    )
-                        elif event.type == pygame.MOUSEBUTTONUP:
-                            # end drag and drop event
-                            if self.dragged_piece:
-                                # update piece position on board
-                                original_pos = self.dragged_piece.grid_pos
-                                pos = pygame.mouse.get_pos()
-                                piece_moved = board.move_piece(self.dragged_piece, pos)
-                                moved_pos = self.dragged_piece.grid_pos
-                                self.dragged_piece = None
-                                board.state.dragged_piece = None
-                                self.drag_offset = None
-
-                                turn = self.handle_piece_moved(
-                                    board,
-                                    turn,
-                                    original_pos,
-                                    moved_pos,
-                                    piece_moved,
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        # get last fen and save to config
+                        fen = board.state.engine_state.fen()
+                        config.APP_CONFIG["state"]["last_fen"] = str(fen)
+                        config.save_config()
+                        pygame.quit()
+                        sys.exit()
+                    elif event.type == pygame.MOUSEBUTTONDOWN:
+                        # check if a piece is clicked
+                        pos = pygame.mouse.get_pos()
+                        try:
+                            clicked_piece = board.get_piece_at(pos)[0]  # only one piece
+                            if clicked_piece and clicked_piece.piece_colour == turn:
+                                # save starting position and start drag-drop event
+                                self.dragged_piece = clicked_piece
+                                self.drag_offset = (
+                                    pos[0] - clicked_piece.piece_rect.x,
+                                    pos[1] - clicked_piece.piece_rect.y,
                                 )
+                            else:
+                                play_sound("invalid_move.mp3", sound_vol)
+                        except IndexError:
+                            # no piece at position
+                            pass
+                    elif event.type == pygame.MOUSEMOTION:
+                        # update piece position if drag drop is active
+                        if self.dragged_piece:
+                            # dragged piece to board state to allow rendering
+                            # of piece on top of other pieces
+                            board.state.dragged_piece = self.dragged_piece
+                            pos = pygame.mouse.get_pos()
+                            if self.drag_offset:
+                                self.dragged_piece.piece_rect.x = (
+                                    pos[0] - self.drag_offset[0]
+                                )
+                                self.dragged_piece.piece_rect.y = (
+                                    pos[1] - self.drag_offset[1]
+                                )
+                    elif event.type == pygame.MOUSEBUTTONUP:
+                        # end drag and drop event
+                        if self.dragged_piece:
+                            # update piece position on board
+                            original_pos = self.dragged_piece.grid_pos
+                            pos = pygame.mouse.get_pos()
+                            piece_moved = board.move_piece(self.dragged_piece, pos)
+                            moved_pos = self.dragged_piece.grid_pos
+                            self.dragged_piece = None
+                            board.state.dragged_piece = None
+                            self.drag_offset = None
+
+                            turn = self.handle_piece_moved(
+                                board,
+                                turn,
+                                original_pos,
+                                moved_pos,
+                                piece_moved,
+                            )
+                    elif event.type == pygame.USEREVENT:
+                        game_over(screen, board.state)
+                        pygame.time.set_timer(pygame.USEREVENT, 0)  # Stop the timer
+
+                # check if game is over
                 if (
                     board.state.engine_state.is_game_over()
                     or board.state.engine_state.is_stalemate()
@@ -186,6 +187,14 @@ class KnightFight:
                     or board.state.engine_state.can_claim_fifty_moves()
                     or board.state.game_over == True
                 ):
+                    # pygame timer start to show game over screen
+                    if not game_over_flag:
+                        # show the initial game over screen, then show the
+                        # final game over screen after 10 seconds
+                        pygame.time.set_timer(pygame.USEREVENT, 10000)
+                        game_over(screen, board.state, True)
+
+                    # set game over flag
                     game_over_flag = True
 
                 # if either player is cpu, make a move
@@ -216,9 +225,7 @@ class KnightFight:
                         board.clear_highlight_squares()
 
                 # update the display
-                if game_over_flag:
-                    game_over(screen, board.state)
-                else:
+                if not game_over_flag:
                     board.render()
                     pygame.display.update()
 
@@ -266,6 +273,7 @@ class KnightFight:
                 if board.state.engine_state.turn
                 else PieceColour.Black
             )
+
             play_sound("drop.mp3", sound_vol)
         else:
             play_sound("invalid_move.mp3", sound_vol)
@@ -288,8 +296,10 @@ class KnightFight:
         LOGGER.info(f"King is in check from move {frompos} -> {topos}")
 
 
-# function to blank the screen and display game over message
-def game_over(screen: pygame.surface.Surface, state: BoardState):
+def game_over(screen: pygame.surface.Surface, state: BoardState, initial: bool = False):
+    """
+    Display game over screen
+    """
     # set up font
     font_name = config.APP_CONFIG["game"]["font_name"]
     font = pygame.font.Font(f"assets/fonts/{font_name}", 72)
@@ -302,7 +312,8 @@ def game_over(screen: pygame.surface.Surface, state: BoardState):
             break
 
     # set up text
-    text = font.render("Game Over", True, (0, 0, 0))
+    text = font.render("Game Over", True, (255, 255, 255))
+    text_blk = font.render("Game Over", True, (0, 0, 0))
     text_rect = text.get_rect()
     text_rect.center = (
         board_size // 2,
@@ -312,7 +323,7 @@ def game_over(screen: pygame.surface.Surface, state: BoardState):
     # set up font
     win_text = "White" if state.winner == PieceColour.White else "Black"
     font2 = pygame.font.Font(f"assets/fonts/{font_name}", 48)
-    text2 = font2.render(f"{win_text} wins!", True, (0, 0, 0))
+    text2 = font2.render(f"{win_text} wins!", True, (255, 255, 255))
     text_rect2 = text2.get_rect()
     text_rect2.center = (
         board_size // 2,
@@ -320,16 +331,19 @@ def game_over(screen: pygame.surface.Surface, state: BoardState):
     )
 
     # show game over screen
-    # screen.fill(BOARD_BK_COLOUR_BLACK)
-    screen.blit(text, text_rect)
-    screen.blit(text2, text_rect2)
-    if winner_piece:
-        winner_rect = winner_piece.piece_rect
-        winner_rect.center = (
-            board_size // 2,
-            board_size // 2 - 100,
-        )
-        screen.blit(winner_piece.piece_image, winner_rect)
+    if not initial:
+        screen.fill(BOARD_BK_COLOUR_BLACK)
+        screen.blit(text, text_rect)
+        screen.blit(text2, text_rect2)
+        if winner_piece:
+            winner_rect = winner_piece.piece_rect
+            winner_rect.center = (
+                board_size // 2,
+                board_size // 2 - 100,
+            )
+            screen.blit(winner_piece.piece_image, winner_rect)
+    else:
+        screen.blit(text_blk, text_rect)
 
     pygame.display.update()
 
