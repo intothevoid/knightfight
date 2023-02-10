@@ -173,11 +173,8 @@ class KnightFight:
                             )
 
                 # if either player is cpu, make a move
-                if (
-                    p1_type == "cpu"
-                    and turn == PieceColour.White
-                    or p2_type == "cpu"
-                    and turn == PieceColour.Black
+                if (p1_type == "cpu" and turn == PieceColour.White) or (
+                    p2_type == "cpu" and turn == PieceColour.Black
                 ):
                     board.set_status_text("CPU is thinking...", cpu_delay)
                     board.render()
@@ -212,6 +209,7 @@ class KnightFight:
                 ):
                     # get reason for game over
                     game_over(screen, board.state)
+                    break
                 else:
                     board.render()
                     pygame.display.update()
@@ -241,26 +239,12 @@ class KnightFight:
             move = grid_pos_to_move(original_pos, moved_pos)
 
             # See if move gives check
-            if board_copy.gives_check(move):
-                play_sound("check.mp3", sound_vol)
-
-                king_square = board_copy.king(
-                    # get king square for opposite colour
-                    True
-                    if turn == PieceColour.Black
-                    else False
-                )
-
-                # highlight square with red background for 5 seconds
-                if king_square:
-                    board.add_highlight_square(king_square)
-
-                LOGGER.info(f"King is in check from move {frompos} -> {topos}")
+            # if board_copy.gives_check(move):
+            # self.handle_check(board, turn, sound_vol, frompos, topos, board_copy)
 
             # See if move gives check
             if board.state.engine_state.is_check():
-                play_sound("check.mp3", sound_vol)
-                LOGGER.info(f"King is in check from move {frompos} -> {topos}")
+                self.handle_check(board, turn, sound_vol, frompos, topos, board_copy)
 
             # See if move gives checkmate
             if board.state.engine_state.is_checkmate():
@@ -278,6 +262,22 @@ class KnightFight:
         else:
             play_sound("invalid_move.mp3", sound_vol)
         return turn
+
+    def handle_check(self, board, turn, sound_vol, frompos, topos, board_copy):
+        play_sound("check.mp3", sound_vol)
+
+        king_square = board_copy.king(
+            # get king square for opposite colour
+            True
+            if turn == PieceColour.Black
+            else False
+        )
+
+        # highlight square with red background for 5 seconds
+        if king_square:
+            board.add_highlight_square(king_square)
+
+        LOGGER.info(f"King is in check from move {frompos} -> {topos}")
 
 
 # function to blank the screen and display game over message

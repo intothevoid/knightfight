@@ -4,7 +4,7 @@ import chess.engine
 
 
 def get_informed_move(board: chess.Board, engine_path: str) -> Optional[chess.Move]:
-    engine = chess.engine.SimpleEngine.popen_uci(r"assets/engines/stockfish")
+    engine = chess.engine.SimpleEngine.popen_uci(engine_path)
 
     # Get the move
     result = engine.play(board, chess.engine.Limit(time=0.1))
