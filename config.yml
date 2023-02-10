@@ -4,9 +4,9 @@ board:
   size: 800
   white_pieces: WhitePieces.png
 cpu:
-  ai: piece_squares
-  delay: 2000
+  ai: stockfish
   complexity: 1
+  delay: 2000
 game:
   font_name: clarity.ttf
   grid_font_size: 10
@@ -26,4 +26,4 @@ piece:
   size_x: 90
   size_y: 90
 state:
-  last_fen: r1bqkb1r/pppppppp/2n2n2/8/8/2N2N2/PPPPPPPP/R1BQKB1R w KQkq - 4 3
+  last_fen: rnbqkb1r/pp1ppppp/5n2/8/2Pp4/8/PP1PPPPP/RNBQKB1R w KQkq - 0 4

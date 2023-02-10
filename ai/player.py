@@ -5,7 +5,7 @@ from config.config import APP_CONFIG
 from helpers.log import LOGGER
 from knightfight.board import Board
 from sound.playback import play_sound
-from ai.piece_squares import selectmove
+from ai.engines import piece_squares, stockfish
 
 
 class AIPlayer:
@@ -27,7 +27,11 @@ class AIPlayer:
         legal_moves = list(board.state.engine_state.legal_moves)
         if len(legal_moves) > 0:
             if self.ai == "piece_squares":
-                move = selectmove(board.state.engine_state, self.complexity)
+                move = piece_squares.selectmove(
+                    board.state.engine_state, self.complexity
+                )
+            if self.ai == "stockfish":
+                move = stockfish.get_informed_move(board.state.engine_state)
             else:
                 move = random.choice(legal_moves)
 
