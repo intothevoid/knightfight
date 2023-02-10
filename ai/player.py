@@ -1,7 +1,6 @@
 import random
 import chess
 from ai.lookup import CHESS_SQUARE_TO_POS
-from config.config import APP_CONFIG
 from helpers.log import LOGGER
 from knightfight.board import Board
 from sound.playback import play_sound
@@ -15,6 +14,7 @@ class AIPlayer:
         sound_vol: float = 1.0,
         ai: str = "basic",
         complexity: int = 1,
+        engine_path: str = "",
     ):
         self.color = color
         self.sound_vol = sound_vol
@@ -22,16 +22,19 @@ class AIPlayer:
         self.new_pos = None
         self.ai = ai
         self.complexity = complexity
+        self.engine_path = engine_path
 
     def move(self, board: Board) -> bool:
         legal_moves = list(board.state.engine_state.legal_moves)
         if len(legal_moves) > 0:
             if self.ai == "piece_squares":
-                move = piece_squares.selectmove(
+                move = piece_squares.get_informed_move(
                     board.state.engine_state, self.complexity
                 )
             if self.ai == "stockfish":
-                move = stockfish.get_informed_move(board.state.engine_state)
+                move = stockfish.get_informed_move(
+                    board.state.engine_state, self.engine_path
+                )
             else:
                 move = random.choice(legal_moves)
 

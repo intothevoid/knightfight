@@ -83,11 +83,17 @@ class KnightFight:
         p1_type = config.APP_CONFIG["game"]["player1"].lower().strip()
         p2_type = config.APP_CONFIG["game"]["player2"].lower().strip()
 
+        # setup ai player and engines
         # max ai players = 2 cpu vs cpu
         ai = config.APP_CONFIG["cpu"]["ai"]  # use basic / piece_squares ai
         complexity = config.APP_CONFIG["cpu"]["complexity"]  # ai complexity
-        ai_white = AIPlayer(chess.WHITE, sound_vol, ai, complexity)
-        ai_black = AIPlayer(chess.BLACK, sound_vol, ai, complexity)
+        engine_path = ""
+
+        if ai == "stockfish":
+            engine_path = config.APP_CONFIG["cpu"]["stockfish_path"]
+
+        ai_white = AIPlayer(chess.WHITE, sound_vol, ai, complexity, engine_path)
+        ai_black = AIPlayer(chess.BLACK, sound_vol, ai, complexity, engine_path)
         AI_PLAYERS = {
             PieceColour.White: ai_white,
             PieceColour.Black: ai_black,

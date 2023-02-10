@@ -3,7 +3,7 @@ import chess
 import chess.engine
 
 
-def get_informed_move(board: chess.Board) -> Optional[chess.Move]:
+def get_informed_move(board: chess.Board, engine_path: str) -> Optional[chess.Move]:
     engine = chess.engine.SimpleEngine.popen_uci(r"assets/engines/stockfish")
 
     # Get the move

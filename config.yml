@@ -6,7 +6,8 @@ board:
 cpu:
   ai: stockfish
   complexity: 1
-  delay: 2000
+  delay: 1000
+  stockfish_path: assets/engines/stockfish
 game:
   font_name: clarity.ttf
   grid_font_size: 10
@@ -26,4 +27,4 @@ piece:
   size_x: 90
   size_y: 90
 state:
-  last_fen: rnbqkb1r/pp1ppppp/5n2/8/2Pp4/8/PP1PPPPP/RNBQKB1R w KQkq - 0 4
+  last_fen: 4rrk1/p5pp/1p1P4/5p2/4p3/1PPn1P2/Q1NNK1qP/R4R2 w - - 1 24

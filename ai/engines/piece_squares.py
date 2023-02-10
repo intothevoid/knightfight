@@ -553,7 +553,7 @@ def quiesce(alpha, beta, board):
     return alpha
 
 
-def selectmove(board: chess.Board, depth: int):
+def get_informed_move(board: chess.Board, depth: int):
     try:
         move = (
             chess.polyglot.MemoryMappedReader("bookfish.bin")

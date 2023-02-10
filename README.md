@@ -23,7 +23,7 @@ Grid lines and positions overlay (configurable)
 6. Undo last move - coming soon!
 7. Change board styles
 8. Multiplayer - coming soon!
-9. Smarter CPU player with multiple chess engines supported (including Stockfish!)
+9. Smarter CPU player with multiple chess engines supported:
     - Stockfish
     - Piece Squares Simple Evaluation
     - Basic Random Moves
@@ -50,9 +50,9 @@ PyGame https://www.pygame.org/
 
 Stockfish https://github.com/official-stockfish/Stockfish
 
-GPL 3.0 License - See https://github.com/official-stockfish/Stockfish/blob/master/Copying.txt
+Stockfish GPL 3.0 License - See https://github.com/official-stockfish/Stockfish/blob/master/Copying.txt
 
-Source Code - https://github.com/official-stockfish/Stockfish/tree/master/src
+Stockfish Source Code - https://github.com/official-stockfish/Stockfish/tree/master/src
 
 Dani Maccari's image assets https://dani-maccari.itch.io/
 
