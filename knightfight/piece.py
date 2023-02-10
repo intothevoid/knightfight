@@ -4,7 +4,7 @@ The piece class to capture the state of the chess pieces.
 
 import pygame
 from dataclasses import dataclass
-from ai.engine import grid_position_to_square, square_to_position
+from helpers.conversions import grid_position_to_square, square_to_position
 from helpers.log import LOGGER
 from typing import Tuple, Any
 from config import config

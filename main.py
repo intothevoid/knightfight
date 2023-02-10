@@ -7,7 +7,7 @@ import traceback
 import pygame
 import chess
 
-from ai.engine import grid_pos_to_move, grid_position_to_label
+from helpers.conversions import grid_pos_to_move, grid_position_to_label
 from ai.lookup import CHESS_SQUARE_TO_POS
 
 from knightfight.board import Board

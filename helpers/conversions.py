@@ -25,28 +25,6 @@ def grid_pos_to_move(start_pos: GridPosition, end_pos: GridPosition) -> chess.Mo
     return chess.Move(grid_pos_to_square(start_pos), grid_pos_to_square(end_pos))
 
 
-# add move to board state
-def add_move_to_engine_state(
-    engine_state: chess.Board,
-    start: Optional[GridPosition | None],
-    end: Optional[GridPosition | None],
-    pt: PieceType,
-) -> chess.Board:
-    """
-    Add a move to the board state
-    """
-    if start is None or end is None:
-        return engine_state
-
-    move = grid_pos_to_move(start, end)
-    # move.drop = piece_type_to_piece(pt)
-    engine_state.push(move)
-
-    # Return the engine state
-    LOGGER.debug(f"FEN: {engine_state.fen()}")
-    return engine_state
-
-
 def piece_type_to_piece(piece_type: PieceType) -> chess.PieceType:
     """
     Convert an internal PieceType to a chess.Piece

@@ -6,16 +6,16 @@ from typing import List
 import chess
 
 from knightfight.types import GridPosition, PieceType, PieceColour
-from ai import engine
+from helpers import conversions
 from helpers.log import LOGGER
 
 
 def validate_move(board: chess.Board, old_pos: GridPosition, new_pos: GridPosition):
-    old_square = engine.grid_position_to_square(old_pos)
-    new_square = engine.grid_position_to_square(new_pos)
+    old_square = conversions.grid_position_to_square(old_pos)
+    new_square = conversions.grid_position_to_square(new_pos)
 
-    from_label = engine.grid_position_to_label(old_pos)
-    to_label = engine.grid_position_to_label(new_pos)
+    from_label = conversions.grid_position_to_label(old_pos)
+    to_label = conversions.grid_position_to_label(new_pos)
 
     # check if the move is valid
     move = chess.Move(old_square, new_square)
@@ -79,4 +79,4 @@ def is_position_occupied(pos: GridPosition, engine_state: chess.Board) -> bool:
     """
     This function checks if the position is occupied by a piece
     """
-    return engine.is_position_occupied(engine_state, pos)
+    return conversions.is_position_occupied(engine_state, pos)

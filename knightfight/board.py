@@ -7,7 +7,8 @@ import random
 from typing import Tuple, Optional, List
 import pygame
 import chess
-from ai.engine import add_move_to_engine_state, square_to_position
+from helpers.conversions import square_to_position
+from helpers.pychess import add_move_to_engine_state
 from animation.animation import display_sprite_animation
 from helpers.log import LOGGER
 from knightfight.piece import Piece
