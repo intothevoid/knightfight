@@ -239,8 +239,8 @@ class KnightFight:
             move = grid_pos_to_move(original_pos, moved_pos)
 
             # See if move gives check
-            # if board_copy.gives_check(move):
-            # self.handle_check(board, turn, sound_vol, frompos, topos, board_copy)
+            if board_copy.gives_check(move):
+                self.handle_check(board, turn, sound_vol, frompos, topos, board_copy)
 
             # See if move gives check
             if board.state.engine_state.is_check():
