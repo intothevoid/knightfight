@@ -9,26 +9,30 @@ from ai.piece_squares import selectmove
 
 
 class AIPlayer:
-    def __init__(self, color: chess.Color, sound_vol: float = 1.0, ai: str = "basic"):
+    def __init__(
+        self,
+        color: chess.Color,
+        sound_vol: float = 1.0,
+        ai: str = "basic",
+        complexity: int = 1,
+    ):
         self.color = color
         self.sound_vol = sound_vol
         self.original_pos = None
         self.new_pos = None
         self.ai = ai
+        self.complexity = complexity
 
     def move(self, board: Board) -> bool:
         legal_moves = list(board.state.engine_state.legal_moves)
         if len(legal_moves) > 0:
             if self.ai == "piece_squares":
-                move = selectmove(board.state.engine_state, 3)
+                move = selectmove(board.state.engine_state, self.complexity)
             else:
-                move = random.choice(legal_moves) if legal_moves else None
-
-            if move in legal_moves:
-                print("LEGAL SHIT GOING ON HERE")
+                move = random.choice(legal_moves)
 
             # update board with move
-            if move:
+            if move and move in legal_moves:
                 # get piece
                 to_square = move.to_square
                 from_square = move.from_square

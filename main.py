@@ -85,8 +85,9 @@ class KnightFight:
 
         # max ai players = 2 cpu vs cpu
         ai = config.APP_CONFIG["cpu"]["ai"]  # use basic / piece_squares ai
-        ai_white = AIPlayer(chess.WHITE, sound_vol, ai)
-        ai_black = AIPlayer(chess.BLACK, sound_vol, ai)
+        complexity = config.APP_CONFIG["cpu"]["complexity"]  # ai complexity
+        ai_white = AIPlayer(chess.WHITE, sound_vol, ai, complexity)
+        ai_black = AIPlayer(chess.BLACK, sound_vol, ai, complexity)
         AI_PLAYERS = {
             PieceColour.White: ai_white,
             PieceColour.Black: ai_black,
