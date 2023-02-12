@@ -31,7 +31,27 @@ Grid lines and positions overlay (configurable)
 ## Installation
 
 ```bash
+python -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
+```
+
+## Install Stockfish (Chess engine. Required for Human vs CPU)
+
+1. Go to https://stockfishchess.org/download/ and download your version of the Stockfish chess engine
+2. Copy the binary to assets/engines/stockfish (assets\engines\stockfish.exe for Windows)
+3. Update the path in config.yml as shown below
+
+### config.yml - Windows
+```
+cpu:
+    stockfish_path: assets/engines/stockfish.exe
+```
+
+### config.yml - MacOS / Linux
+```
+cpu:
+    stockfish_path: assets/engines/stockfish
 ```
 
 ## Usage
