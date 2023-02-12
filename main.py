@@ -54,9 +54,6 @@ class KnightFight:
         screen.blit(splash_image, splash_rect)
         pygame.display.update()
 
-        # show splash screen for 3 seconds
-        pygame.time.delay(3000)
-
     def run(self):
         # initialize pygame and load config
         pygame.init()
@@ -221,9 +218,6 @@ class KnightFight:
                             ai_moved,
                         )
 
-                        # clear any existing highlights
-                        board.clear_highlight_squares()
-
                 # update the display
                 if not game_over_flag:
                     board.render()
@@ -255,11 +249,9 @@ class KnightFight:
 
             # See if move gives check
             if board_copy.gives_check(move):
-                self.handle_check(board, turn, sound_vol, frompos, topos, board_copy)
-
-            # See if move gives check
-            if board.state.engine_state.is_check():
-                self.handle_check(board, turn, sound_vol, frompos, topos, board_copy)
+                self.handle_check(
+                    board, turn, float(sound_vol), frompos, topos, board_copy
+                )
 
             # See if move gives checkmate
             if board.state.engine_state.is_checkmate():
@@ -279,7 +271,15 @@ class KnightFight:
             play_sound("invalid_move.mp3", sound_vol)
         return turn
 
-    def handle_check(self, board, turn, sound_vol, frompos, topos, board_copy):
+    def handle_check(
+        self,
+        board: Board,
+        turn: PieceColour,
+        sound_vol: float,
+        frompos: str,
+        topos: str,
+        board_copy: chess.Board,
+    ):
         play_sound("check.mp3", sound_vol)
 
         king_square = board_copy.king(
