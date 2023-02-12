@@ -2,6 +2,7 @@
 Knight Fight is a Chess game written using pygame.
 """
 
+import os
 import sys
 import traceback
 import pygame
@@ -21,6 +22,16 @@ from ai.player import AIPlayer
 
 BOARD_BK_COLOUR = (255, 255, 255)
 BOARD_BK_COLOUR_BLACK = (0, 0, 0)
+
+# Workaround to get Windows pygame to load audio correctly
+# The pygame audio dll does not load correctly, this adds
+# the dll to the os path
+if os.name == 'nt':
+    #pypy does not find the dlls, so we add package folder to PATH.
+    pygame_dir = os.path.split(__file__)[0] + "\\assets\\dll"
+    os.environ['PATH'] = os.environ['PATH'] + ';' + pygame_dir
+    #Fix for the bpo-36085 change in Python3.8 on Windows
+    os.add_dll_directory(pygame_dir)
 
 
 class KnightFight:
