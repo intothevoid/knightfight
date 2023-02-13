@@ -8,7 +8,6 @@ cpu:
   complexity: 1
   delay: 1000
   stockfish_path: assets/engines/stockfish
-  stockfish_path_win: assets/engines/stockfish.exe
 game:
   font_name: clarity.ttf
   grid_font_size: 10
