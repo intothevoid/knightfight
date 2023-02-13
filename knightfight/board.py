@@ -397,7 +397,7 @@ class Board:
         self.window_surface.blit(text, text_rect)
         pygame.display.update()
 
-        # wait between 1-3 seconds before making move
+        # wait for status_text_delay seconds before clearing the text
         pygame.time.wait(self.status_text_delay)
 
         # reset

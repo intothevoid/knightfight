@@ -8,6 +8,7 @@ cpu:
   complexity: 1
   delay: 1000
   stockfish_path: assets/engines/stockfish
+  stockfish_path_win: assets/engines/stockfish.exe
 game:
   font_name: clarity.ttf
   grid_font_size: 10
@@ -27,4 +28,4 @@ piece:
   size_x: 90
   size_y: 90
 state:
-  last_fen: 4rrk1/p5pp/1p1P4/5p2/4p3/1PPn1P2/Q1NNK1qP/R4R2 w - - 1 24
+  last_fen: r3k2r/p4ppp/5n2/8/1P2p3/R1P1PnP1/P2q1P1P/3K3R w kq - 0 19
