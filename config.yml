@@ -5,7 +5,7 @@ board:
   white_pieces: WhitePieces.png
 cpu:
   ai: piece_squares2
-  complexity: 1
+  complexity: 3
   delay: 1000
   stockfish_path: assets/engines/stockfish
 game:
@@ -27,4 +27,4 @@ piece:
   size_x: 90
   size_y: 90
 state:
-  last_fen: rnbqkb1r/pppp1ppp/4pn2/8/8/2P2N2/PP1PPPPP/RNBQKB1R w KQkq - 0 3
+  last_fen: 3k2r1/pP1P1pNp/2b5/2pP2PP/8/8/2B2P2/R3K2R b KQ - 16 46

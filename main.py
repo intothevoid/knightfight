@@ -258,10 +258,14 @@ class KnightFight:
             move = grid_pos_to_move(original_pos, moved_pos)
 
             # See if move gives check
-            if board_copy.gives_check(move):
-                self.handle_check(
-                    board, turn, float(sound_vol), frompos, topos, board_copy
-                )
+            try:
+                if board_copy.gives_check(move):
+                    self.handle_check(
+                        board, turn, float(sound_vol), frompos, topos, board_copy
+                    )
+            except AssertionError:
+                # move is not legal
+                LOGGER.info(f"Invalid move {frompos} -> {topos}!")
 
             # See if move gives checkmate
             if board.state.engine_state.is_checkmate():

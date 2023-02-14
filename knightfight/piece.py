@@ -3,8 +3,13 @@ The piece class to capture the state of the chess pieces.
 """
 
 import pygame
+import chess
 from dataclasses import dataclass
-from helpers.conversions import grid_position_to_square, square_to_position
+from helpers.conversions import (
+    grid_position_to_square,
+    square_to_position,
+    grid_pos_to_move,
+)
 from helpers.log import LOGGER
 from typing import Tuple, Any
 from config import config
@@ -17,7 +22,6 @@ from knightfight.types import GridPosition
 def get_piece_from_strip(
     image_file: str, piece_type: PieceType
 ) -> Tuple[pygame.Surface, Any]:
-
     strip_image = pygame.image.load(f"assets/images/{image_file}")
     piece_width = int(strip_image.get_width() / 6)
     piece_height = int(strip_image.get_height())
@@ -92,7 +96,6 @@ class Piece:
         )
 
     def move_to(self, new_grid_pos: GridPosition, board_state: BoardState) -> bool:
-
         if new_grid_pos is None or new_grid_pos.row is None or new_grid_pos.col is None:
             return False
 
@@ -105,12 +108,20 @@ class Piece:
             new_grid_pos,
             board_state.engine_state,
         ):
-
             # update position
             self.piece_rect.topleft = square_to_position(self.square)
 
             return False
         else:
+            # check if castling
+            # if castling, move rook
+            # king will be moved by code below castling check
+            if board_state.engine_state.is_castling(
+                grid_pos_to_move(self.grid_pos, new_grid_pos)
+            ):
+                self.handle_castling(new_grid_pos, board_state)
+
+            # update grid position
             self.grid_pos = new_grid_pos
 
             # update chess engine square
@@ -121,5 +132,84 @@ class Piece:
 
             return True
 
+    def handle_castling(self, new_grid_pos: GridPosition, board_state: BoardState):
+        """
+        Handle castling
+        """
+        rook_piece = self.is_castling(self.grid_pos, new_grid_pos, board_state)
+
+        if rook_piece:
+            rook_pos_new = self.get_rook_new_pos_after_castling(
+                rook_piece, self.grid_pos, new_grid_pos, board_state
+            )
+
+            # update rook position
+            rook_piece.grid_pos = rook_pos_new
+            rook_piece.square = grid_position_to_square(rook_pos_new)
+            rook_piece.piece_rect.topleft = square_to_position(rook_piece.square)
+
     def render(self) -> None:
         self.window_surface.blit(self.piece_image, self.piece_rect)
+
+    def is_castling(
+        self, oldpos: GridPosition, newpos: GridPosition, board_state: BoardState
+    ) -> Any:
+        """
+        Check if castling is happening
+        """
+        # only kings can castle
+        if self.piece_type != PieceType.King:
+            return None
+
+        if board_state.engine_state.is_kingside_castling(
+            grid_pos_to_move(oldpos, newpos)
+        ):
+            if self.piece_colour == PieceColour.White:
+                return self.get_piece_from_square(board_state, chess.H1)
+            else:
+                return self.get_piece_from_square(board_state, chess.H8)
+
+        if board_state.engine_state.is_queenside_castling(
+            grid_pos_to_move(oldpos, newpos)
+        ):
+            if self.piece_colour == PieceColour.White:
+                return self.get_piece_from_square(board_state, chess.A1)
+            else:
+                return self.get_piece_from_square(board_state, chess.A8)
+
+        return None
+
+    def get_piece_from_square(self, board_state: BoardState, square: int) -> Any:
+        """
+        Get piece from square
+        """
+        for piece in board_state.pieces:
+            if piece.square == square:
+                return piece
+
+        return None
+
+    def get_rook_new_pos_after_castling(
+        self,
+        rook_piece: "Piece",
+        oldpos: GridPosition,
+        newpos: GridPosition,
+        board_state: BoardState,
+    ) -> GridPosition:
+        """
+        Get the new position of the rook after castling
+        """
+        if rook_piece is None:
+            return GridPosition(-1, -1)
+
+        if board_state.engine_state.is_kingside_castling(
+            grid_pos_to_move(oldpos, newpos)
+        ):
+            return GridPosition(oldpos.row, oldpos.col + 1)
+
+        if board_state.engine_state.is_queenside_castling(
+            grid_pos_to_move(oldpos, newpos)
+        ):
+            return GridPosition(oldpos.row, oldpos.col - 1)
+
+        return GridPosition(-1, -1)
