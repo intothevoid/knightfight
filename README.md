@@ -25,7 +25,8 @@ Grid lines and positions overlay (configurable)
 8. Multiplayer - coming soon!
 9. Smarter CPU player with multiple chess engines supported:
     - Stockfish
-    - Piece Squares Simple Evaluation
+    - Piece Squares (Uses minimax algorithm)
+    - Piece Squares v2 (Uses minimax algorithm) - Default
     - Basic Random Moves
 
 ## Installation
@@ -37,6 +38,8 @@ pip install -r requirements.txt
 ```
 
 ## Install Stockfish (Chess engine. Required for Human vs CPU)
+
+If you would like to play against a stronger CPU player, you can install Stockfish. Stockfish is a free, open source chess engine. It is the strongest chess engine in the world. 
 
 1. Go to https://stockfishchess.org/download/ and download your version of the Stockfish chess engine
 2. Copy the binary to assets/engines/stockfish (assets\engines\stockfish.exe for Windows)

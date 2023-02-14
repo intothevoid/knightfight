@@ -4,7 +4,7 @@ from ai.lookup import CHESS_SQUARE_TO_POS
 from helpers.log import LOGGER
 from knightfight.board import Board
 from sound.playback import play_sound
-from ai.engines import piece_squares, stockfish
+from ai.engines import piece_squares, piece_squares2, stockfish
 
 
 class AIPlayer:
@@ -13,7 +13,7 @@ class AIPlayer:
         color: chess.Color,
         sound_vol: float = 1.0,
         ai: str = "basic",
-        complexity: int = 1,
+        complexity: int = 3,
         engine_path: str = "",
     ):
         self.color = color
@@ -31,7 +31,11 @@ class AIPlayer:
                 move = piece_squares.get_informed_move(
                     board.state.engine_state, self.complexity
                 )
-            if self.ai == "stockfish":
+            if self.ai == "piece_squares2":
+                move = piece_squares2.get_informed_move(
+                    board.state.engine_state, self.complexity
+                )
+            elif self.ai == "stockfish":
                 move = stockfish.get_informed_move(
                     board.state.engine_state, self.engine_path
                 )
