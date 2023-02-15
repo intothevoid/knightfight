@@ -50,7 +50,7 @@ class Board:
         """
         Reset the board to the starting position
         """
-        last_fen = config.APP_CONFIG["game"]["last_fen"]
+        last_fen = config.APP_CONFIG["state"]["last_fen"]
         self.state.engine_state.reset()
         self.state = BoardState()
         self.init_pieces(last_fen)

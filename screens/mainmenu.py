@@ -1,7 +1,7 @@
-from typing import Tuple
+from typing import List, Tuple
 import pygame
 
-from sound.playback import play_title_music
+from sound.playback import play_game_music, play_title_music
 from knightfight.types import TitleChoice
 
 
@@ -47,8 +47,8 @@ def main_menu(config: dict) -> TitleChoice:
     )
 
     # Play menu option
-    play_text = font.render("New Game", True, (0, 0, 0))
-    play_rect = play_text.get_rect(center=(board_size - (board_size / 6), 50))
+    new_text = font.render("New Game", True, (0, 0, 0))
+    new_rect = new_text.get_rect(center=(board_size - (board_size / 6), 50))
 
     # Load menu option
     load_text = font.render("Load Game", True, (0, 0, 0))
@@ -67,6 +67,7 @@ def main_menu(config: dict) -> TitleChoice:
         (255, 0, 255),
         (0, 255, 255),
         (255, 255, 255),
+        (0, 0, 0),
     ]
     clock = pygame.time.Clock()
     color_index = 0
@@ -81,21 +82,36 @@ def main_menu(config: dict) -> TitleChoice:
                 quit()
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if play_rect.collidepoint(event.pos):
+                if new_rect.collidepoint(event.pos):
                     # start game
+                    play_game_music()
                     return TitleChoice.New
                 elif load_rect.collidepoint(event.pos):
                     # load game
+                    play_game_music()
                     return TitleChoice.Load
                 elif quit_rect.collidepoint(event.pos):
-                    pygame.quit()
-                    quit()
+                    return TitleChoice.Quit
+
+            if event.type == pygame.MOUSEMOTION:
+                if new_rect.collidepoint(event.pos):
+                    new_text = font.render("New Game", True, (255, 255, 255))
+                else:
+                    new_text = font.render("New Game", True, (0, 0, 0))
+
+                if load_rect.collidepoint(event.pos):
+                    load_text = font.render("Load Game", True, (255, 255, 255))
+                else:
+                    load_text = font.render("Load Game", True, (0, 0, 0))
+
+                if quit_rect.collidepoint(event.pos):
+                    quit_text = font.render("Quit", True, (255, 255, 255))
+                else:
+                    quit_text = font.render("Quit", True, (0, 0, 0))
 
         # draw menu screen
-        screen.fill((0, 0, 0))
         screen.blit(splash_image, splash_rect)
-        # screen.blit(game_name_text, game_name_rect)
-        screen.blit(play_text, play_rect)
+        screen.blit(new_text, new_rect)
         screen.blit(load_text, load_rect)
         screen.blit(quit_text, quit_rect)
 

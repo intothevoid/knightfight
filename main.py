@@ -14,7 +14,7 @@ from ai.lookup import CHESS_SQUARE_TO_POS
 from knightfight.board import Board
 from knightfight.state import BoardState
 from config import config
-from knightfight.types import GridPosition, PieceColour, PieceType
+from knightfight.types import GridPosition, PieceColour, PieceType, TitleChoice
 from helpers.log import LOGGER
 from sound.playback import play_game_music, play_sound, play_tense_music
 from ai.player import AIPlayer
@@ -101,12 +101,6 @@ class KnightFight:
         pygame.display.set_caption("KNIGHT FIGHT")
         pygame.mouse.set_visible(True)
 
-        # show main menu
-        main_menu(config.APP_CONFIG)
-
-        # play game music
-        play_game_music()
-
         # show splash screen
         # self.show_splash_screen(screen)
 
@@ -137,6 +131,13 @@ class KnightFight:
         # track turn
         turn = PieceColour.White
 
+        # show main menu
+        choice = main_menu(config.APP_CONFIG)
+        self.handle_menu_choice(board, choice)
+
+        # play game music
+        play_game_music()
+
         try:
             # main loop
             # check if game is over
@@ -145,11 +146,7 @@ class KnightFight:
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         # get last fen and save to config
-                        fen = board.state.engine_state.fen()
-                        config.APP_CONFIG["state"]["last_fen"] = str(fen)
-                        config.save_config()
-                        pygame.quit()
-                        sys.exit()
+                        self.handle_menu_choice(board, TitleChoice.Quit)
                     elif event.type == pygame.MOUSEBUTTONDOWN:
                         # check if a piece is clicked
                         pos = pygame.mouse.get_pos()
@@ -204,6 +201,13 @@ class KnightFight:
                         game_over(screen, board.state)
                         pygame.time.set_timer(pygame.USEREVENT, 0)  # Stop the timer
 
+                    # handle key presses
+                    elif event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_ESCAPE:
+                            # show main menu
+                            choice = main_menu(config.APP_CONFIG)
+                            self.handle_menu_choice(board, choice)
+
                 # check if game is over
                 if (
                     board.state.engine_state.is_game_over()
@@ -256,6 +260,23 @@ class KnightFight:
         except Exception as exc:
             # show stack trace
             LOGGER.error(f"Error: {exc} Stack trace: {traceback.format_exc()}")
+
+    def handle_menu_choice(self, board, choice):
+        if choice == TitleChoice.Quit:
+            LOGGER.info("Saving state and quitting game...")
+            # get last fen and save to config
+            fen = board.state.engine_state.fen()
+            config.APP_CONFIG["state"]["last_fen"] = str(fen)
+            config.save_config()
+            pygame.quit()
+            sys.exit()
+        elif choice == TitleChoice.Load:
+            # load last saved game
+            LOGGER.info("Loading last saved game")
+            board.load_last_game()
+        else:
+            # start new game
+            LOGGER.info("Starting new game")
 
     def handle_piece_moved(
         self,
