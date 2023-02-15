@@ -2,7 +2,7 @@
 
 > "Join the battle as a valiant knight, outsmart your opponent, and capture the enemy's king in this strategic and knightly game of Knight Fight Chess."
 
-<img src="https://raw.githubusercontent.com/intothevoid/knightfight/main/assets/images/logo.png" width="60%" height="60%"></img>
+<img src="https://raw.githubusercontent.com/intothevoid/knightfight/main/assets/images/title_screen.png" width="70%" height="70%"></img>
 
 Play chess on a pixelated retro board. Play against a CPU player or another friend.
 
@@ -23,7 +23,9 @@ Grid lines and positions overlay (configurable)
 6. Undo last move - coming soon!
 7. Change board styles
 8. Multiplayer - coming soon!
-9. Smarter CPU player with multiple chess engines supported:
+9. Animated CPU piece moves
+10. Retro title menu with options to save and load games
+11. Smarter CPU player with multiple chess engines supported:
     - Stockfish
     - Piece Squares (Uses minimax algorithm)
     - Piece Squares v2 (Uses minimax algorithm) - Default
@@ -37,7 +39,13 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## Install Stockfish (Chess engine. Required for Human vs CPU)
+## Usage
+
+```bash
+python3 main.py
+```
+
+## Optional - Install Stockfish (Powerful Chess Engine)
 
 If you would like to play against a stronger CPU player, you can install Stockfish. Stockfish is a free, open source chess engine. It is the strongest chess engine in the world. 
 
@@ -55,12 +63,6 @@ cpu:
 ```
 cpu:
     stockfish_path: assets/engines/stockfish
-```
-
-## Usage
-
-```bash
-python3 main.py
 ```
 
 ## Powered By
