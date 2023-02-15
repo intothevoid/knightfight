@@ -27,4 +27,4 @@ piece:
   size_x: 90
   size_y: 90
 state:
-  last_fen: 3k2r1/pP1P1pNp/2b5/2pP2PP/8/8/2B2P2/R3K2R b KQ - 16 46
+  last_fen: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1

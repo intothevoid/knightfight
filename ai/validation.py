@@ -5,7 +5,7 @@ Control and verify movement of pieces on the board
 from typing import List
 import chess
 
-from knightfight.types import GridPosition, PieceType, PieceColour
+from knightfight.types import GridPosition
 from helpers import conversions
 from helpers.log import LOGGER
 

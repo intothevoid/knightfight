@@ -14,10 +14,11 @@ from ai.lookup import CHESS_SQUARE_TO_POS
 from knightfight.board import Board
 from knightfight.state import BoardState
 from config import config
-from knightfight.types import GridPosition, PieceColour, PieceType
+from knightfight.types import GridPosition, PieceColour, PieceType, TitleChoice
 from helpers.log import LOGGER
-from sound.playback import play_music, play_sound
+from sound.playback import play_game_music, play_sound, play_tense_music
 from ai.player import AIPlayer
+from screens.mainmenu import main_menu
 
 
 BOARD_BK_COLOUR = (255, 255, 255)
@@ -38,6 +39,23 @@ class KnightFight:
     def __init__(self):
         self.dragged_piece = None
         self.drag_offset = None
+        self._tense_mode = False
+
+    @property
+    def tense_mode(self) -> bool:
+        return self._tense_mode
+
+    @tense_mode.setter
+    def tense_mode(self, value: bool) -> None:
+        # only if value has changed
+        if self._tense_mode != value:
+            # play tense music if tense mode is enabled
+            if not value:
+                play_game_music()
+            else:
+                play_tense_music()
+
+        self._tense_mode = value
 
     def show_splash_screen(self, screen):
         """
@@ -113,9 +131,12 @@ class KnightFight:
         # track turn
         turn = PieceColour.White
 
-        # play music
-        ost = config.APP_CONFIG["game"]["soundtrack"]
-        play_music(ost, music_vol)  # music volume
+        # show main menu
+        choice = main_menu(config.APP_CONFIG)
+        self.handle_menu_choice(board, choice)
+
+        # play game music
+        play_game_music()
 
         try:
             # main loop
@@ -125,11 +146,7 @@ class KnightFight:
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         # get last fen and save to config
-                        fen = board.state.engine_state.fen()
-                        config.APP_CONFIG["state"]["last_fen"] = str(fen)
-                        config.save_config()
-                        pygame.quit()
-                        sys.exit()
+                        self.handle_menu_choice(board, TitleChoice.Quit)
                     elif event.type == pygame.MOUSEBUTTONDOWN:
                         # check if a piece is clicked
                         pos = pygame.mouse.get_pos()
@@ -184,6 +201,13 @@ class KnightFight:
                         game_over(screen, board.state)
                         pygame.time.set_timer(pygame.USEREVENT, 0)  # Stop the timer
 
+                    # handle key presses
+                    elif event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_ESCAPE:
+                            # show main menu
+                            choice = main_menu(config.APP_CONFIG)
+                            self.handle_menu_choice(board, choice)
+
                 # check if game is over
                 if (
                     board.state.engine_state.is_game_over()
@@ -237,6 +261,23 @@ class KnightFight:
             # show stack trace
             LOGGER.error(f"Error: {exc} Stack trace: {traceback.format_exc()}")
 
+    def handle_menu_choice(self, board, choice):
+        if choice == TitleChoice.Quit:
+            LOGGER.info("Saving state and quitting game...")
+            # get last fen and save to config
+            fen = board.state.engine_state.fen()
+            config.APP_CONFIG["state"]["last_fen"] = str(fen)
+            config.save_config()
+            pygame.quit()
+            sys.exit()
+        elif choice == TitleChoice.Load:
+            # load last saved game
+            LOGGER.info("Loading last saved game")
+            board.load_last_game()
+        else:
+            # start new game
+            LOGGER.info("Starting new game")
+
     def handle_piece_moved(
         self,
         board: Board,
@@ -250,6 +291,9 @@ class KnightFight:
         if piece_moved and original_pos != moved_pos:
             frompos = grid_position_to_label(original_pos)
             topos = grid_position_to_label(moved_pos)
+
+            # go back to normal music, if in tense mode
+            self.tense_mode = False
 
             # clear any existing highlights
             board.clear_highlight_squares()
@@ -296,6 +340,9 @@ class KnightFight:
     ):
         play_sound("check.mp3", sound_vol)
 
+        # go into tense mode
+        self.tense_mode = True
+
         king_square = board_copy.king(
             # get king square for opposite colour
             True
@@ -318,6 +365,7 @@ def game_over(screen: pygame.surface.Surface, state: BoardState, initial: bool =
     font_name = config.APP_CONFIG["game"]["font_name"]
     font = pygame.font.Font(f"assets/fonts/{font_name}", 72)
     board_size = config.APP_CONFIG["board"]["size"]
+    sound_vol = config.APP_CONFIG["game"]["sound_vol"]
 
     winner_piece = None
     for piece in state.pieces:
@@ -358,6 +406,9 @@ def game_over(screen: pygame.surface.Surface, state: BoardState, initial: bool =
             screen.blit(winner_piece.piece_image, winner_rect)
     else:
         screen.blit(text_blk, text_rect)
+
+    # play game over sound
+    play_sound("game_over.mp3", sound_vol)
 
     pygame.display.update()
 
