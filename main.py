@@ -16,8 +16,9 @@ from knightfight.state import BoardState
 from config import config
 from knightfight.types import GridPosition, PieceColour, PieceType
 from helpers.log import LOGGER
-from sound.playback import play_music, play_sound
+from sound.playback import play_game_music, play_sound, play_tense_music
 from ai.player import AIPlayer
+from screens.mainmenu import main_menu
 
 
 BOARD_BK_COLOUR = (255, 255, 255)
@@ -38,6 +39,23 @@ class KnightFight:
     def __init__(self):
         self.dragged_piece = None
         self.drag_offset = None
+        self._tense_mode = False
+
+    @property
+    def tense_mode(self) -> bool:
+        return self._tense_mode
+
+    @tense_mode.setter
+    def tense_mode(self, value: bool) -> None:
+        # only if value has changed
+        if self._tense_mode != value:
+            # play tense music if tense mode is enabled
+            if not value:
+                play_game_music()
+            else:
+                play_tense_music()
+
+        self._tense_mode = value
 
     def show_splash_screen(self, screen):
         """
@@ -83,6 +101,12 @@ class KnightFight:
         pygame.display.set_caption("KNIGHT FIGHT")
         pygame.mouse.set_visible(True)
 
+        # show main menu
+        main_menu(config.APP_CONFIG)
+
+        # play game music
+        play_game_music()
+
         # show splash screen
         # self.show_splash_screen(screen)
 
@@ -112,10 +136,6 @@ class KnightFight:
 
         # track turn
         turn = PieceColour.White
-
-        # play music
-        ost = config.APP_CONFIG["game"]["soundtrack"]
-        play_music(ost, music_vol)  # music volume
 
         try:
             # main loop
@@ -251,6 +271,9 @@ class KnightFight:
             frompos = grid_position_to_label(original_pos)
             topos = grid_position_to_label(moved_pos)
 
+            # go back to normal music, if in tense mode
+            self.tense_mode = False
+
             # clear any existing highlights
             board.clear_highlight_squares()
             board_copy = board.state.engine_state.copy()
@@ -296,6 +319,9 @@ class KnightFight:
     ):
         play_sound("check.mp3", sound_vol)
 
+        # go into tense mode
+        self.tense_mode = True
+
         king_square = board_copy.king(
             # get king square for opposite colour
             True
@@ -318,6 +344,7 @@ def game_over(screen: pygame.surface.Surface, state: BoardState, initial: bool =
     font_name = config.APP_CONFIG["game"]["font_name"]
     font = pygame.font.Font(f"assets/fonts/{font_name}", 72)
     board_size = config.APP_CONFIG["board"]["size"]
+    sound_vol = config.APP_CONFIG["game"]["sound_vol"]
 
     winner_piece = None
     for piece in state.pieces:
@@ -358,6 +385,9 @@ def game_over(screen: pygame.surface.Surface, state: BoardState, initial: bool =
             screen.blit(winner_piece.piece_image, winner_rect)
     else:
         screen.blit(text_blk, text_rect)
+
+    # play game over sound
+    play_sound("game_over.mp3", sound_vol)
 
     pygame.display.update()
 
