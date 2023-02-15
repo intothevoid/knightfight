@@ -29,3 +29,28 @@ def play_music(music_file: str, volume: float = 1.0) -> None:
     pygame.mixer.music.load(f"assets/sounds/{music_file}")
     pygame.mixer.music.set_volume(volume)
     pygame.mixer.music.play(-1)
+
+
+def play_game_music() -> None:
+    """
+    Play the game music
+    """
+    ost = config.APP_CONFIG["game"]["soundtrack"]
+    volume = config.APP_CONFIG["game"]["music_vol"]
+    play_music(ost, volume)
+
+
+def play_tense_music() -> None:
+    """
+    Play the tense music
+    """
+    volume = config.APP_CONFIG["game"]["music_vol"]
+    play_music("tense.mp3", volume)
+
+
+def play_title_music() -> None:
+    """
+    Play the title music
+    """
+    volume = config.APP_CONFIG["game"]["music_vol"]
+    play_music("title.mp3", volume)
