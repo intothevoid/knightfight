@@ -46,17 +46,27 @@ class Board:
         # for arrow from start to end square of last move
         self.last_move_arrow = None
 
-    def init_pieces(self) -> None:
+    def load_last_game(self) -> None:
+        """
+        Reset the board to the starting position
+        """
+        last_fen = config.APP_CONFIG["game"]["last_fen"]
+        self.state.engine_state.reset()
+        self.state = BoardState()
+        self.init_pieces(last_fen)
+
+    def init_pieces(self, last_fen: str = "") -> None:
         """
         Initialize the pieces on the board
         """
 
-        self.state.engine_state = chess.Board()
+        # load the last state if requested
+        self.state.engine_state = chess.Board(last_fen) if last_fen else chess.Board()
         LOGGER.info(f"Starting FEN: {self.state.engine_state.fen()})")
 
         # iterate through chess pieces and add them to the board
         board = self.state.engine_state
-        print(board)
+        LOGGER.info(board)
 
         for square in board.piece_map():
             piece = board.piece_at(square)
@@ -190,7 +200,9 @@ class Board:
 
         return None
 
-    def move_piece(self, piece: Piece, new_pos: Tuple[int, int]) -> bool:
+    def move_piece(
+        self, piece: Piece, new_pos: Tuple[int, int], animate: bool = False
+    ) -> bool:
         # check if target square is occupied
         pieces = self.get_piece_at(new_pos)
         target_sq_piece = None
@@ -221,7 +233,7 @@ class Board:
         self.check_collision_remove(piece, new_pos, target_sq_piece)
 
         # move piece and update piece position
-        if piece.move_to(self.get_grid_at(new_pos), self.state):
+        if piece.move_to(self.get_grid_at(new_pos), self.state, animate):
             self.state.changed_pieces.append(piece)
 
             # update engine state, only if the move is valid
@@ -275,14 +287,8 @@ class Board:
                 target_sq_piece.piece_rect,
             )
 
-            # check if king is killed
-            if target_sq_piece.piece_type == PieceType.King:
-                self.state.game_over = True
-                self.state.winner = piece.piece_colour
-                play_sound("explode.mp3", self.sound_vol)
-                play_sound("game_over.mp3", self.sound_vol)
-            else:
-                play_sound("explode.mp3", self.sound_vol)
+            # play explosion sound
+            play_sound("explode.mp3", self.sound_vol)
 
     def redraw_pieces(self):
         for piece in self.state.pieces:

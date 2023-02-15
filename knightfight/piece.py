@@ -13,7 +13,6 @@ from helpers.conversions import (
 from helpers.log import LOGGER
 from typing import Tuple, Any
 from config import config
-from knightfight.converter import convert_grid_pos_to_algebraic_notation
 from ai.validation import is_move_valid
 from knightfight.state import BoardState, PieceColour, PieceType
 from knightfight.types import GridPosition
@@ -95,7 +94,9 @@ class Piece:
             and self.grid_pos == other.grid_pos
         )
 
-    def move_to(self, new_grid_pos: GridPosition, board_state: BoardState) -> bool:
+    def move_to(
+        self, new_grid_pos: GridPosition, board_state: BoardState, animate: bool = False
+    ) -> bool:
         if new_grid_pos is None or new_grid_pos.row is None or new_grid_pos.col is None:
             return False
 
@@ -121,6 +122,12 @@ class Piece:
             ):
                 self.handle_castling(new_grid_pos, board_state)
 
+            # show piece animation
+            if animate:
+                self.animate_piece(
+                    self.grid_pos, new_grid_pos, self.window_surface, self.piece_image
+                )
+
             # update grid position
             self.grid_pos = new_grid_pos
 
@@ -131,6 +138,40 @@ class Piece:
             self.piece_rect.topleft = square_to_position(self.square)
 
             return True
+
+    import pygame
+
+    def animate_piece(
+        self,
+        start_pos: GridPosition,
+        end_pos: GridPosition,
+        surface: pygame.surface.Surface,
+        piece_image: pygame.surface.Surface,
+    ):
+        """
+        Animate piece movement
+        """
+        start_square = grid_position_to_square(start_pos)
+        end_square = grid_position_to_square(end_pos)
+
+        start_x, start_y = square_to_position(start_square)
+        end_x, end_y = square_to_position(end_square)
+
+        clock = pygame.time.Clock()
+        frames = 5  # number of frames in animation
+        for i in range(frames):
+            # calculate current x and y position of piece
+            current_x = start_x + (end_x - start_x) * i / frames
+            current_y = start_y + (end_y - start_y) * i / frames
+
+            # blit piece onto surface
+            surface.blit(piece_image, (current_x, current_y))
+
+            # control animation speed
+            clock.tick(60)
+
+            # update display
+            pygame.display.update()
 
     def handle_castling(self, new_grid_pos: GridPosition, board_state: BoardState):
         """
