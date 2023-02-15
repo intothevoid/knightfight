@@ -13,7 +13,7 @@ class AIPlayer:
         color: chess.Color,
         sound_vol: float = 1.0,
         ai: str = "basic",
-        complexity: int = 3,
+        complexity: int = 1,
         engine_path: str = "",
     ):
         self.color = color
@@ -23,22 +23,24 @@ class AIPlayer:
         self.ai = ai
         self.complexity = complexity
         self.engine_path = engine_path
+        self.engine = None
 
     def move(self, board: Board) -> bool:
         legal_moves = list(board.state.engine_state.legal_moves)
         if len(legal_moves) > 0:
-            if self.ai == "piece_squares":
+            if self.ai == "piece_squares" or "piecesquares":
                 move = piece_squares.get_informed_move(
                     board.state.engine_state, self.complexity
                 )
-            if self.ai == "piece_squares2":
+            if self.ai == "piece_squares2" or "piecesquares2":
                 move = piece_squares2.get_informed_move(
                     board.state.engine_state, self.complexity
                 )
             elif self.ai == "stockfish":
-                move = stockfish.get_informed_move(
-                    board.state.engine_state, self.engine_path
-                )
+                sfengine = stockfish.StockFishEngine(self.engine_path)
+                self.engine = sfengine
+                move = sfengine.get_informed_move(board.state.engine_state)
+                sfengine.quit()
             else:
                 move = random.choice(legal_moves)
 
@@ -59,7 +61,7 @@ class AIPlayer:
                 if moved_piece:
                     # move piece and update position
                     self.original_pos = moved_piece.grid_pos
-                    piece_moved = board.move_piece(moved_piece, new_pos)
+                    piece_moved = board.move_piece(moved_piece, new_pos, True)
                     self.new_pos = moved_piece.grid_pos
 
                     if piece_moved:
@@ -76,3 +78,10 @@ class AIPlayer:
         else:
             LOGGER.info("No legal moves found. This should not happen. Game Over?")
             return False
+
+    def quit(self):
+        """
+        Quit engine
+        """
+        if self.engine:
+            self.engine.quit()

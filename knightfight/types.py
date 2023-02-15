@@ -3,6 +3,7 @@ from enum import Enum
 import abc
 import chess
 
+
 # enum for the piece types
 class PieceType(Enum):
     Bishop = "Bishop"
@@ -57,3 +58,24 @@ class State(abc.ABC):
     @abc.abstractmethod
     def get_board_state(self) -> chess.Board:
         raise NotImplementedError
+
+
+class Engine(abc.ABC):
+    """
+    Abstract class for the chess engine
+    """
+
+    @abc.abstractmethod
+    def get_informed_move(self, board: chess.Board) -> chess.Move:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def quit(self) -> None:
+        raise NotImplementedError
+
+
+class TitleChoice(Enum):
+    New = "Start a new game."
+    Load = "Load and continue the last game."
+    Settings = "Change settings."
+    Quit = "Quit the game."
