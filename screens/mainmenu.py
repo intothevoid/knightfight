@@ -1,15 +1,18 @@
-from typing import List, Tuple
+from typing import Any, Tuple
 import pygame
 
 from sound.playback import play_game_music, play_title_music
 from knightfight.types import TitleChoice
 
 
-def main_menu(config: dict) -> TitleChoice:
+def main_menu(config: dict, **kwargs: Any) -> TitleChoice:
     board_size = config["board"]["size"]
     pygame.init()
     screen = pygame.display.set_mode((board_size, board_size))
     pygame.display.set_caption("KNIGHT FIGHT")
+
+    # get save game function from kwargs
+    save_game_func = kwargs.get("save_game_func", None)
 
     # load splash screen image
     splash_image = pygame.image.load("assets/images/logo.png")
@@ -54,9 +57,13 @@ def main_menu(config: dict) -> TitleChoice:
     load_text = font.render("Load Game", True, (0, 0, 0))
     load_rect = load_text.get_rect(center=(board_size - (board_size / 6), 100))
 
+    # Save menu option
+    save_text = font.render("Save Game", True, (0, 0, 0))
+    save_rect = save_text.get_rect(center=(board_size - (board_size / 6), 150))
+
     # Quit menu option
     quit_text = font.render("Quit", True, (0, 0, 0))
-    quit_rect = quit_text.get_rect(center=(board_size - (board_size / 6), 150))
+    quit_rect = quit_text.get_rect(center=(board_size - (board_size / 6), 200))
 
     # for flashing title text
     colors = [
@@ -90,6 +97,10 @@ def main_menu(config: dict) -> TitleChoice:
                     # load game
                     play_game_music()
                     return TitleChoice.Load
+                elif save_rect.collidepoint(event.pos):
+                    # save game
+                    if save_game_func:
+                        save_game_func()
                 elif quit_rect.collidepoint(event.pos):
                     return TitleChoice.Quit
 
@@ -104,6 +115,11 @@ def main_menu(config: dict) -> TitleChoice:
                 else:
                     load_text = font.render("Load Game", True, (0, 0, 0))
 
+                if save_rect.collidepoint(event.pos):
+                    save_text = font.render("Save Game", True, (255, 255, 255))
+                else:
+                    save_text = font.render("Save Game", True, (0, 0, 0))
+
                 if quit_rect.collidepoint(event.pos):
                     quit_text = font.render("Quit", True, (255, 255, 255))
                 else:
@@ -113,6 +129,7 @@ def main_menu(config: dict) -> TitleChoice:
         screen.blit(splash_image, splash_rect)
         screen.blit(new_text, new_rect)
         screen.blit(load_text, load_rect)
+        screen.blit(save_text, save_rect)
         screen.blit(quit_text, quit_rect)
 
         # Change the color of the text every 200 milliseconds
