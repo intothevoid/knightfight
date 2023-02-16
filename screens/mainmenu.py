@@ -1,11 +1,15 @@
 from typing import Any, Tuple
 import pygame
+from screens.settings import settings_screen
 
 from sound.playback import play_game_music, play_title_music
 from knightfight.types import TitleChoice
 
 
 def main_menu(config: dict, **kwargs: Any) -> TitleChoice:
+    BLACK = (0, 0, 0)
+    WHITE = (255, 255, 255)
+
     board_size = config["board"]["size"]
     pygame.init()
     screen = pygame.display.set_mode((board_size, board_size))
@@ -41,29 +45,38 @@ def main_menu(config: dict, **kwargs: Any) -> TitleChoice:
     # draw menu options
     font_name = config["game"]["font_name"]
     font = pygame.font.Font(f"assets/fonts/{font_name}", 32)
+    status_font = pygame.font.Font(f"assets/fonts/{font_name}", 15)
     game_name_font = pygame.font.Font(f"assets/fonts/{font_name}", 84)
 
+    # status text
+    status_text = status_font.render("", True, WHITE)
+    status_rect = status_text.get_rect(center=(30, 40))
+
     # Game name static text
-    game_name_text = game_name_font.render("KNIGHT FIGHT", True, (0, 0, 0))
+    game_name_text = game_name_font.render("KNIGHT FIGHT", True, BLACK)
     game_name_rect = game_name_text.get_rect(
         center=(board_size / 2 + 10, board_size - (board_size / 12))
     )
 
     # Play menu option
-    new_text = font.render("New Game", True, (0, 0, 0))
+    new_text = font.render("New Game", True, BLACK)
     new_rect = new_text.get_rect(center=(board_size - (board_size / 6), 50))
 
     # Load menu option
-    load_text = font.render("Load Game", True, (0, 0, 0))
+    load_text = font.render("Load Game", True, BLACK)
     load_rect = load_text.get_rect(center=(board_size - (board_size / 6), 100))
 
     # Save menu option
-    save_text = font.render("Save Game", True, (0, 0, 0))
+    save_text = font.render("Save Game", True, BLACK)
     save_rect = save_text.get_rect(center=(board_size - (board_size / 6), 150))
 
+    # Settings menu option
+    settings_text = font.render("Settings", True, BLACK)
+    settings_rect = settings_text.get_rect(center=(board_size - (board_size / 6), 200))
+
     # Quit menu option
-    quit_text = font.render("Quit", True, (0, 0, 0))
-    quit_rect = quit_text.get_rect(center=(board_size - (board_size / 6), 200))
+    quit_text = font.render("Quit", True, BLACK)
+    quit_rect = quit_text.get_rect(center=(board_size - (board_size / 6), 250))
 
     # for flashing title text
     colors = [
@@ -101,36 +114,60 @@ def main_menu(config: dict, **kwargs: Any) -> TitleChoice:
                     # save game
                     if save_game_func:
                         save_game_func()
+                elif settings_rect.collidepoint(event.pos):
+                    # open settings
+                    settings_screen(screen, config)
                 elif quit_rect.collidepoint(event.pos):
                     return TitleChoice.Quit
 
             if event.type == pygame.MOUSEMOTION:
                 if new_rect.collidepoint(event.pos):
-                    new_text = font.render("New Game", True, (255, 255, 255))
+                    new_text = font.render("New Game", True, WHITE)
+                    status_text = status_font.render(TitleChoice.New.value, True, WHITE)
                 else:
-                    new_text = font.render("New Game", True, (0, 0, 0))
+                    new_text = font.render("New Game", True, BLACK)
 
                 if load_rect.collidepoint(event.pos):
-                    load_text = font.render("Load Game", True, (255, 255, 255))
+                    load_text = font.render("Load Game", True, WHITE)
+                    status_text = status_font.render(
+                        TitleChoice.Load.value, True, WHITE
+                    )
                 else:
-                    load_text = font.render("Load Game", True, (0, 0, 0))
+                    load_text = font.render("Load Game", True, BLACK)
 
                 if save_rect.collidepoint(event.pos):
-                    save_text = font.render("Save Game", True, (255, 255, 255))
+                    save_text = font.render("Save Game", True, WHITE)
+                    status_text = status_font.render(
+                        TitleChoice.Save.value, True, WHITE
+                    )
                 else:
-                    save_text = font.render("Save Game", True, (0, 0, 0))
+                    save_text = font.render("Save Game", True, BLACK)
+
+                if settings_rect.collidepoint(event.pos):
+                    settings_text = font.render("Settings", True, WHITE)
+                    status_text = status_font.render(
+                        TitleChoice.Settings.value, True, WHITE
+                    )
+                else:
+                    settings_text = font.render("Settings", True, BLACK)
 
                 if quit_rect.collidepoint(event.pos):
-                    quit_text = font.render("Quit", True, (255, 255, 255))
+                    quit_text = font.render("Quit", True, WHITE)
+                    status_text = status_font.render(
+                        TitleChoice.Quit.value, True, WHITE
+                    )
                 else:
-                    quit_text = font.render("Quit", True, (0, 0, 0))
+                    quit_text = font.render("Quit", True, BLACK)
 
         # draw menu screen
         screen.blit(splash_image, splash_rect)
         screen.blit(new_text, new_rect)
         screen.blit(load_text, load_rect)
         screen.blit(save_text, save_rect)
+        screen.blit(settings_text, settings_rect)
         screen.blit(quit_text, quit_rect)
+        if status_text:
+            screen.blit(status_text, status_rect)
 
         # Change the color of the text every 200 milliseconds
         if pygame.time.get_ticks() - color_time > 200:
