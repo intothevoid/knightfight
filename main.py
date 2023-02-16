@@ -40,6 +40,8 @@ class KnightFight:
         self.dragged_piece = None
         self.drag_offset = None
         self._tense_mode = False
+        self.board = None
+        self.screen = None
 
     @property
     def tense_mode(self) -> bool:
@@ -57,32 +59,6 @@ class KnightFight:
 
         self._tense_mode = value
 
-    def show_splash_screen(self, screen):
-        """
-        Show splash screen on new window
-        """
-        # load splash screen image
-        splash_image = pygame.image.load("assets/images/logo.png")
-
-        # set image size to 50% of board size
-        splash_image = pygame.transform.scale(
-            splash_image,
-            (
-                config.APP_CONFIG["board"]["size"],
-                config.APP_CONFIG["board"]["size"],
-            ),
-        )
-
-        splash_rect = splash_image.get_rect()
-        splash_rect.center = (
-            config.APP_CONFIG["board"]["size"] // 2,
-            config.APP_CONFIG["board"]["size"] // 2,
-        )
-
-        # show splash screen
-        screen.blit(splash_image, splash_rect)
-        pygame.display.update()
-
     def run(self):
         # initialize pygame and load config
         pygame.init()
@@ -94,8 +70,8 @@ class KnightFight:
 
         # set up the window
         board_size = config.APP_CONFIG["board"]["size"]
-        screen = pygame.display.set_mode((board_size, board_size))
-        screen.fill(BOARD_BK_COLOUR)
+        self.screen = pygame.display.set_mode((board_size, board_size))
+        self.screen.fill(BOARD_BK_COLOUR)
 
         # set window title
         pygame.display.set_caption("KNIGHT FIGHT")
@@ -126,14 +102,14 @@ class KnightFight:
         cpu_delay = config.APP_CONFIG["cpu"]["delay"]  # delay between moves
 
         # setup board
-        board = Board(screen)
+        self.board = Board(self.screen)
 
         # track turn
         turn = PieceColour.White
 
         # show main menu
-        choice = main_menu(config.APP_CONFIG)
-        self.handle_menu_choice(board, choice)
+        choice = main_menu(config.APP_CONFIG, save_game_func=self.save_game)
+        self.handle_menu_choice(self.board, choice)
 
         # play game music
         play_game_music()
@@ -146,12 +122,14 @@ class KnightFight:
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         # get last fen and save to config
-                        self.handle_menu_choice(board, TitleChoice.Quit)
+                        self.handle_menu_choice(self.board, TitleChoice.Quit)
                     elif event.type == pygame.MOUSEBUTTONDOWN:
                         # check if a piece is clicked
                         pos = pygame.mouse.get_pos()
                         try:
-                            clicked_piece = board.get_piece_at(pos)[0]  # only one piece
+                            clicked_piece = self.board.get_piece_at(pos)[
+                                0
+                            ]  # only one piece
                             if clicked_piece and clicked_piece.piece_colour == turn:
                                 # save starting position and start drag-drop event
                                 self.dragged_piece = clicked_piece
@@ -169,7 +147,7 @@ class KnightFight:
                         if self.dragged_piece:
                             # dragged piece to board state to allow rendering
                             # of piece on top of other pieces
-                            board.state.dragged_piece = self.dragged_piece
+                            self.board.state.dragged_piece = self.dragged_piece
                             pos = pygame.mouse.get_pos()
                             if self.drag_offset:
                                 self.dragged_piece.piece_rect.x = (
@@ -184,46 +162,49 @@ class KnightFight:
                             # update piece position on board
                             original_pos = self.dragged_piece.grid_pos
                             pos = pygame.mouse.get_pos()
-                            piece_moved = board.move_piece(self.dragged_piece, pos)
+                            piece_moved = self.board.move_piece(self.dragged_piece, pos)
                             moved_pos = self.dragged_piece.grid_pos
                             self.dragged_piece = None
-                            board.state.dragged_piece = None
+                            self.board.state.dragged_piece = None
                             self.drag_offset = None
 
                             turn = self.handle_piece_moved(
-                                board,
+                                self.board,
                                 turn,
                                 original_pos,
                                 moved_pos,
                                 piece_moved,
                             )
                     elif event.type == pygame.USEREVENT:
-                        game_over(screen, board.state)
+                        game_over(self.screen, self.board.state)
                         pygame.time.set_timer(pygame.USEREVENT, 0)  # Stop the timer
 
                     # handle key presses
                     elif event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_ESCAPE:
                             # show main menu
-                            choice = main_menu(config.APP_CONFIG)
-                            self.handle_menu_choice(board, choice)
+                            choice = main_menu(
+                                config.APP_CONFIG,
+                                save_game_func=self.save_game,
+                            )
+                            self.handle_menu_choice(self.board, choice)
 
                 # check if game is over
                 if (
-                    board.state.engine_state.is_game_over()
-                    or board.state.engine_state.is_stalemate()
-                    or board.state.engine_state.is_insufficient_material()
-                    or board.state.engine_state.is_seventyfive_moves()
-                    or board.state.engine_state.is_fivefold_repetition()
-                    or board.state.engine_state.can_claim_fifty_moves()
-                    or board.state.game_over == True
+                    self.board.state.engine_state.is_game_over()
+                    or self.board.state.engine_state.is_stalemate()
+                    or self.board.state.engine_state.is_insufficient_material()
+                    or self.board.state.engine_state.is_seventyfive_moves()
+                    or self.board.state.engine_state.is_fivefold_repetition()
+                    or self.board.state.engine_state.can_claim_fifty_moves()
+                    or self.board.state.game_over == True
                 ):
                     # pygame timer start to show game over screen
                     if not game_over_flag:
                         # show the initial game over screen, then show the
                         # final game over screen after 10 seconds
                         pygame.time.set_timer(pygame.USEREVENT, 10000)
-                        game_over(screen, board.state, True)
+                        game_over(self.screen, self.board.state, True)
 
                     # set game over flag
                     game_over_flag = True
@@ -234,18 +215,18 @@ class KnightFight:
                     or (p2_type == "cpu" and turn == PieceColour.Black)
                     and not game_over_flag
                 ):
-                    board.set_status_text("CPU is thinking...", cpu_delay)
-                    board.render()
+                    self.board.set_status_text("CPU is thinking...", cpu_delay)
+                    self.board.render()
 
                     # get random move from list of legal moves
-                    ai_moved = AI_PLAYERS[turn].move(board)
+                    ai_moved = AI_PLAYERS[turn].move(self.board)
                     original_pos = AI_PLAYERS[turn].original_pos
                     moved_pos = AI_PLAYERS[turn].new_pos
 
                     if ai_moved and original_pos and moved_pos:
                         # change turn
                         turn = self.handle_piece_moved(
-                            board,
+                            self.board,
                             turn,
                             original_pos,
                             moved_pos,
@@ -254,22 +235,33 @@ class KnightFight:
 
                 # update the display
                 if not game_over_flag:
-                    board.render()
+                    self.board.render()
                     pygame.display.update()
 
         except Exception as exc:
             # show stack trace
             LOGGER.error(f"Error: {exc} Stack trace: {traceback.format_exc()}")
 
-    def handle_menu_choice(self, board, choice):
-        if choice == TitleChoice.Quit:
-            LOGGER.info("Saving state and quitting game...")
-            # get last fen and save to config
-            fen = board.state.engine_state.fen()
+    def save_game(self):
+        """
+        Save the current game state to the config file
+        """
+        # get last fen and save to config
+        if self.board:
+            LOGGER.info("Saving game state...")
+            fen = self.board.state.engine_state.fen()
             config.APP_CONFIG["state"]["last_fen"] = str(fen)
             config.save_config()
-            pygame.quit()
-            sys.exit()
+
+    def handle_menu_choice(self, board, choice):
+        """
+        Handle the menu choice
+        """
+        if choice == TitleChoice.Quit:
+            LOGGER.info("Quitting game")
+            if self.board:
+                pygame.quit()
+                sys.exit()
         elif choice == TitleChoice.Load:
             # load last saved game
             LOGGER.info("Loading last saved game")
@@ -277,6 +269,8 @@ class KnightFight:
         else:
             # start new game
             LOGGER.info("Starting new game")
+            if self.screen:
+                self.board = Board(self.screen)
 
     def handle_piece_moved(
         self,
@@ -286,6 +280,9 @@ class KnightFight:
         moved_pos: GridPosition,
         piece_moved: bool,
     ):
+        """
+        Handle the piece moved event
+        """
         sound_vol = config.APP_CONFIG["game"]["sound_vol"]
 
         if piece_moved and original_pos != moved_pos:

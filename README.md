@@ -10,9 +10,12 @@ Play chess on a pixelated retro board. Play against a CPU player or another frie
 
 <img src="https://raw.githubusercontent.com/intothevoid/knightfight/main/assets/images/sshot_go.png" width="70%" height="70%"></img>
 
+<img src="https://raw.githubusercontent.com/intothevoid/knightfight/main/assets/images/sshot_settings.png" width="70%" height="70%"></img>
+
 Grid lines and positions overlay (configurable)
 
 <img src="https://raw.githubusercontent.com/intothevoid/knightfight/main/assets/images/sshot_debug.png" width="70%" height="70%"></img>
+
 
 ## Features
 1. Multiple modes - Human v Human, CPU v Human, CPU vs CPU 

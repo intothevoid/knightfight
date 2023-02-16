@@ -66,7 +66,7 @@ class Board:
 
         # iterate through chess pieces and add them to the board
         board = self.state.engine_state
-        LOGGER.info(board)
+        LOGGER.info(f"Board\n{board}")
 
         for square in board.piece_map():
             piece = board.piece_at(square)

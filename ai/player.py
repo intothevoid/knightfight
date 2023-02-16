@@ -28,11 +28,11 @@ class AIPlayer:
     def move(self, board: Board) -> bool:
         legal_moves = list(board.state.engine_state.legal_moves)
         if len(legal_moves) > 0:
-            if self.ai == "piece_squares" or "piecesquares":
+            if self.ai == "piece_squares" or self.ai == "piecesquares":
                 move = piece_squares.get_informed_move(
                     board.state.engine_state, self.complexity
                 )
-            if self.ai == "piece_squares2" or "piecesquares2":
+            if self.ai == "piece_squares2" or self.ai == "piecesquares2":
                 move = piece_squares2.get_informed_move(
                     board.state.engine_state, self.complexity
                 )

@@ -76,6 +76,7 @@ class Engine(abc.ABC):
 
 class TitleChoice(Enum):
     New = "Start a new game."
-    Load = "Load and continue the last game."
+    Load = "Load last saved game."
+    Save = "Save current game."
     Settings = "Change settings."
     Quit = "Quit the game."
