@@ -404,8 +404,8 @@ def game_over(screen: pygame.surface.Surface, state: BoardState, initial: bool =
     else:
         screen.blit(text_blk, text_rect)
 
-    # play game over sound
-    play_sound("game_over.mp3", sound_vol)
+        # play game over sound
+        play_sound("game_over.mp3", sound_vol)
 
     pygame.display.update()
 
