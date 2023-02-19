@@ -33,6 +33,7 @@ Grid lines and positions overlay (configurable)
     - Piece Squares (Uses minimax algorithm)
     - Piece Squares v2 (Uses minimax algorithm) - Default
     - Basic Random Moves
+12. Show possible moves for selected piece, and last move made
 
 ## Installation
 
