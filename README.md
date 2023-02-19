@@ -23,7 +23,7 @@ Grid lines and positions overlay (configurable)
 3. Retro sound effects and music!
 4. Lots of configurable options
 5. Debug mode to highlight positions and grid
-6. Undo last move - coming soon!
+6. Undo last move (press Ctrl+Z)
 7. Change board styles
 8. Multiplayer - coming soon!
 9. Animated CPU piece moves
