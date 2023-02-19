@@ -114,6 +114,11 @@ class KnightFight:
         # play game music
         play_game_music()
 
+        # check if undo is available
+        undo_last_move_allowed = (
+            config.APP_CONFIG["game"]["undo_last_move_allowed"] or False
+        )
+
         try:
             # main loop
             # check if game is over
@@ -194,6 +199,23 @@ class KnightFight:
                                 save_game_func=self.save_game,
                             )
                             self.handle_menu_choice(self.board, choice)
+                        elif event.type == pygame.KEYDOWN:
+                            # undo move
+                            if (
+                                event.key == pygame.K_z
+                                and pygame.key.get_mods() & pygame.K_LCTRL
+                            ):
+                                if undo_last_move_allowed:
+                                    # undo last move user pressed ctrl+z
+                                    self.board.undo_last_move()
+                                    # change turn
+                                    turn = (
+                                        PieceColour.White
+                                        if self.board.state.engine_state.turn
+                                        else PieceColour.Black
+                                    )
+                                else:
+                                    play_sound("invalid_move.mp3", sound_vol)
 
                 # check if game is over
                 if (

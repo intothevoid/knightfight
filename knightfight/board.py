@@ -58,6 +58,22 @@ class Board:
         self.state = BoardState()
         self.init_pieces(last_fen)
 
+    def undo_last_move(self) -> None:
+        """
+        Undo the last move
+        """
+        # save the current state
+        last_state = self.state.engine_state
+
+        # pop the last state - undo
+        last_state.pop()
+
+        # reset the board
+        self.state = BoardState()
+
+        # re-initialize the pieces
+        self.init_pieces(last_state.fen())
+
     def init_pieces(self, last_fen: str = "") -> None:
         """
         Initialize the pieces on the board
