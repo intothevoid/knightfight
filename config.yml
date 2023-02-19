@@ -3,6 +3,7 @@ board:
   image: board_plain_02.png
   size: 800
   white_pieces: WhitePieces.png
+  show_possible_moves: true
 cpu:
   ai: piece_squares2
   complexity: 3

@@ -46,6 +46,9 @@ class Board:
         # for arrow from start to end square of last move
         self.last_move_arrow = None
 
+        # for possible moves
+        self.move_squares: chess.SquareSet = chess.SquareSet()
+
     def load_last_game(self) -> None:
         """
         Reset the board to the starting position
@@ -200,6 +203,46 @@ class Board:
 
         return None
 
+    def populate_move_squares(self) -> None:
+        """
+        Populate the move squares for each piece
+        """
+        show_moves = config.APP_CONFIG["board"]["show_possible_moves"]
+        if not show_moves:
+            return
+
+        # get the square of the piece
+        if self.state.dragged_piece:
+            self.move_squares = self.state.engine_state.attacks(
+                self.state.dragged_piece.square
+            )
+
+        # manually add moves for pawns
+        if (
+            self.state.dragged_piece
+            and self.state.dragged_piece.piece_type == PieceType.Pawn
+        ):
+            # get the pawn moves
+            pawn_moves = self.state.engine_state.pseudo_legal_moves
+
+            # add the pawn moves to the possible move squares
+            for move in pawn_moves:
+                if move.from_square == self.state.dragged_piece.square:
+                    self.move_squares.add(move.to_square)
+
+        # clear squares which are not legal moves
+        if len(self.move_squares) > 0:
+            for square in self.move_squares:
+                move = chess.Move(self.state.dragged_piece.square, square)
+                if move not in self.state.engine_state.legal_moves:
+                    self.move_squares.remove(square)
+
+    def clear_move_squares(self) -> None:
+        """
+        Clear the move squares
+        """
+        self.move_squares.clear()
+
     def move_piece(
         self, piece: Piece, new_pos: Tuple[int, int], animate: bool = False
     ) -> bool:
@@ -326,6 +369,10 @@ class Board:
         # draw last move arrow
         if self.last_move_arrow:
             self.draw_last_move_arrow()
+
+        # draw possible move squares
+        if len(self.move_squares) > 0:
+            self.draw_move_squares()
 
         # draw the highlight squares
         if len(self.highlighted_squares) > 0:
@@ -463,3 +510,18 @@ class Board:
             end_pos,
             width,
         )
+
+    def draw_move_squares(self):
+        """
+        Draw the move squares as circles
+        """
+        for square in self.move_squares:
+            x, y = square_to_position(square)
+
+            # draw the circle
+            pygame.draw.circle(
+                self.window_surface,
+                (0, 0, 0),
+                (x + 45, y + 45),
+                5,
+            )

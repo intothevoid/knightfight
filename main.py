@@ -145,6 +145,9 @@ class KnightFight:
                     elif event.type == pygame.MOUSEMOTION:
                         # update piece position if drag drop is active
                         if self.dragged_piece:
+                            # update board with possible moves
+                            self.board.populate_move_squares()
+
                             # dragged piece to board state to allow rendering
                             # of piece on top of other pieces
                             self.board.state.dragged_piece = self.dragged_piece
@@ -159,6 +162,9 @@ class KnightFight:
                     elif event.type == pygame.MOUSEBUTTONUP:
                         # end drag and drop event
                         if self.dragged_piece:
+                            # clear possible moves
+                            self.board.clear_move_squares()
+
                             # update piece position on board
                             original_pos = self.dragged_piece.grid_pos
                             pos = pygame.mouse.get_pos()
