@@ -246,7 +246,7 @@ class KnightFight:
                     self.board.set_status_text("CPU is thinking...", cpu_delay)
                     self.board.render()
 
-                    # get random move from list of legal moves
+                    # get move from list of legal moves
                     ai_moved = AI_PLAYERS[turn].move(self.board)
                     original_pos = AI_PLAYERS[turn].original_pos
                     moved_pos = AI_PLAYERS[turn].new_pos

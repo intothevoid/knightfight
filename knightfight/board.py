@@ -58,6 +58,14 @@ class Board:
         self.state = BoardState()
         self.init_pieces(last_fen)
 
+    def load_state_from_fen(self, fen: str) -> None:
+        """
+        Load the board state from a FEN string, used in multiplayer
+        """
+        self.state.engine_state.reset()
+        self.state = BoardState()
+        self.init_pieces(fen)
+
     def undo_last_move(self) -> None:
         """
         Undo the last move

@@ -14,7 +14,9 @@ from multiplayer.models import (
     GamesGameIdDeleteResponse,
 )
 
-CHESSAPI_SERVER = "https://localhost:8000"
+from config.config import APP_CONFIG
+
+CHESSAPI_SERVER = APP_CONFIG["multiplayer"]["server"] or "http://localhost:8000"
 API_URL = f"{CHESSAPI_SERVER}/api/v1"
 
 

@@ -25,6 +25,9 @@ game:
   sound_vol: 1.0
   soundtrack: clouds.mp3
   undo_last_move_allowed: true
+multiplayer:
+  server: http://localhost:8000
+  name: Player
 piece:
   size_x: 90
   size_y: 90
