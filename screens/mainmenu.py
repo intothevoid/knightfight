@@ -44,7 +44,7 @@ def main_menu(config: dict, **kwargs: Any) -> TitleChoice:
 
     # draw menu options
     font_name = config["game"]["font_name"]
-    font = pygame.font.Font(f"assets/fonts/{font_name}", 32)
+    font = pygame.font.Font(f"assets/fonts/{font_name}", 28)
     status_font = pygame.font.Font(f"assets/fonts/{font_name}", 15)
     game_name_font = pygame.font.Font(f"assets/fonts/{font_name}", 84)
 
@@ -62,21 +62,25 @@ def main_menu(config: dict, **kwargs: Any) -> TitleChoice:
     new_text = font.render("New Game", True, BLACK)
     new_rect = new_text.get_rect(center=(board_size - (board_size / 6), 50))
 
+    # Multiplayer menu option
+    mp_text = font.render("Network", True, BLACK)
+    mp_rect = new_text.get_rect(center=(board_size - (board_size / 6), 100))
+
     # Load menu option
     load_text = font.render("Load Game", True, BLACK)
-    load_rect = load_text.get_rect(center=(board_size - (board_size / 6), 100))
+    load_rect = load_text.get_rect(center=(board_size - (board_size / 6), 150))
 
     # Save menu option
     save_text = font.render("Save Game", True, BLACK)
-    save_rect = save_text.get_rect(center=(board_size - (board_size / 6), 150))
+    save_rect = save_text.get_rect(center=(board_size - (board_size / 6), 200))
 
     # Settings menu option
     settings_text = font.render("Settings", True, BLACK)
-    settings_rect = settings_text.get_rect(center=(board_size - (board_size / 6), 200))
+    settings_rect = settings_text.get_rect(center=(board_size - (board_size / 6), 250))
 
     # Quit menu option
     quit_text = font.render("Quit", True, BLACK)
-    quit_rect = quit_text.get_rect(center=(board_size - (board_size / 6), 250))
+    quit_rect = quit_text.get_rect(center=(board_size - (board_size / 6), 300))
 
     # for flashing title text
     colors = [
@@ -106,6 +110,10 @@ def main_menu(config: dict, **kwargs: Any) -> TitleChoice:
                     # start game
                     play_game_music()
                     return TitleChoice.New
+                elif mp_rect.collidepoint(event.pos):
+                    # start multiplayer game
+                    play_game_music()
+                    return TitleChoice.Network
                 elif load_rect.collidepoint(event.pos):
                     # load game
                     play_game_music()
@@ -126,6 +134,14 @@ def main_menu(config: dict, **kwargs: Any) -> TitleChoice:
                     status_text = status_font.render(TitleChoice.New.value, True, WHITE)
                 else:
                     new_text = font.render("New Game", True, BLACK)
+
+                if mp_rect.collidepoint(event.pos):
+                    mp_text = font.render("Network", True, WHITE)
+                    status_text = status_font.render(
+                        TitleChoice.Network.value, True, WHITE
+                    )
+                else:
+                    mp_text = font.render("Network", True, BLACK)
 
                 if load_rect.collidepoint(event.pos):
                     load_text = font.render("Load Game", True, WHITE)
@@ -162,6 +178,7 @@ def main_menu(config: dict, **kwargs: Any) -> TitleChoice:
         # draw menu screen
         screen.blit(splash_image, splash_rect)
         screen.blit(new_text, new_rect)
+        screen.blit(mp_text, mp_rect)
         screen.blit(load_text, load_rect)
         screen.blit(save_text, save_rect)
         screen.blit(settings_text, settings_rect)

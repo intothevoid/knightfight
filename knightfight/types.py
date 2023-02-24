@@ -76,6 +76,7 @@ class Engine(abc.ABC):
 
 class TitleChoice(Enum):
     New = "Start a new game."
+    Network = "Start a multiplayer game."
     Load = "Load last saved game."
     Save = "Save current game."
     Settings = "Change settings."
