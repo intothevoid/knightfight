@@ -18,13 +18,28 @@ class NetworkPlayer:
     def __init__(
         self,
         color: chess.Color,
+        config: dict,
         name: str = "NetworkPlayer",
     ):
         self.color = color
+        self.config = config
         self.name = name
         self.other_player = ""
         self.game_id = ""
-        self.board = chess.Board()
+        self._state = ""
+
+    @property
+    def state(self) -> str:
+        if self.game_id:
+            game_data_resp = get_game_request(self.game_id)
+            if game_data_resp and game_data_resp.state:
+                if self._state != game_data_resp.state:
+                    self._state = game_data_resp.state
+        return self._state or ""
+
+    @state.setter
+    def state(self, value: str) -> None:
+        self._state = value
 
     def create_game(self) -> bool:
         """
@@ -33,7 +48,7 @@ class NetworkPlayer:
         create_request = GamesPostRequest(
             player1=self.name,
             player2="",
-            state=self.board.fen(),
+            state=self._state,
         )
 
         # create a game on the server
@@ -46,8 +61,8 @@ class NetworkPlayer:
             # get game state from server
             if self.game_id:
                 game_data_resp = get_game_request(self.game_id)
-                if game_data_resp:
-                    self.state = game_data_resp.state
+                if game_data_resp and game_data_resp.state:
+                    self._state = game_data_resp.state
                     if self.name == game_data_resp.player1:
                         self.other_player = game_data_resp.player2
                     else:
@@ -57,14 +72,15 @@ class NetworkPlayer:
 
         return False
 
-    def record_self_move_to_server(self, move: chess.Move) -> bool:
+    def record_self_move_to_server(self, state: str) -> bool:
         """
         Once the player has made a move, record it to the server
         """
 
         # record the move to the server
+        self.state = state
         update_request = GamesGameIdPutRequest(
-            state=self.board.fen(),
+            state=state,
         )
 
         if self.game_id:
@@ -80,9 +96,9 @@ class NetworkPlayer:
         """
         if self.game_id:
             game_data_resp = get_game_request(self.game_id)
-            if game_data_resp:
-                if self.board.fen() != game_data_resp.state:
-                    self.board = chess.Board(game_data_resp.state)
+            if game_data_resp and game_data_resp.state:
+                if self._state != game_data_resp.state:
+                    self._state = game_data_resp.state
                     return True
         return False
 
