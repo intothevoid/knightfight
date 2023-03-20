@@ -120,7 +120,7 @@ boardvalue = 0
 
 def update_eval(
     board: chess.Board, mov: chess.Move, side: chess.Color
-) -> Optional[chess.Move | None]:
+) -> Optional[chess.Move]:
     global boardvalue
 
     # update piecequares

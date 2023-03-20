@@ -212,7 +212,7 @@ class Board:
                 del self.state.pieces[i]
                 break
 
-    def get_piece(self, piece_pos) -> Optional[Piece | None]:
+    def get_piece(self, piece_pos) -> Optional[Piece]:
         for piece in self.state.pieces:
             if piece.piece_pos == piece_pos:
                 return piece

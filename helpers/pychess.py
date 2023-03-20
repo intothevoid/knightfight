@@ -4,11 +4,12 @@ from knightfight.types import GridPosition, PieceType, PieceColour
 from helpers.log import LOGGER
 from helpers import conversions
 
+
 # add move to board state
 def add_move_to_engine_state(
     engine_state: chess.Board,
-    start: Optional[GridPosition | None],
-    end: Optional[GridPosition | None],
+    start: Optional[GridPosition],
+    end: Optional[GridPosition],
     pt: PieceType,
 ) -> chess.Board:
     """
