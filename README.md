@@ -38,6 +38,7 @@ Grid lines and positions overlay (configurable)
 ## Installation
 
 ```bash
+git checkout git@github.com:intothevoid/knightfight.git
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
