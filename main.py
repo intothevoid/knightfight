@@ -59,6 +59,16 @@ class KnightFight:
 
         self._tense_mode = value
 
+    def get_openai_api_key_from_env(self) -> str:
+        """
+        Get the OpenAI API key from the environment variable.
+        """
+        openai_api_key = os.getenv("OPENAI_API_KEY")
+        if not openai_api_key:
+            LOGGER.warning("OPENAI_API_KEY environment variable is not set.")
+            return ""
+        return openai_api_key
+
     def run(self):
         # initialize pygame and load config
         pygame.init()
@@ -89,12 +99,23 @@ class KnightFight:
         ai = config.APP_CONFIG["cpu"]["ai"]  # use basic / piece_squares ai
         complexity = config.APP_CONFIG["cpu"]["complexity"]  # ai complexity
         engine_path = ""
+        openai_api_key = ""
 
         if ai == "stockfish":
             engine_path = config.APP_CONFIG["cpu"]["stockfish_path"]
 
-        ai_white = AIPlayer(chess.WHITE, sound_vol, ai, complexity, engine_path)
-        ai_black = AIPlayer(chess.BLACK, sound_vol, ai, complexity, engine_path)
+        if ai == "openai":
+            openai_api_key = (
+                config.APP_CONFIG["cpu"]["openai_api_key"]
+                or self.get_openai_api_key_from_env()
+            )
+
+        ai_white = AIPlayer(
+            chess.WHITE, sound_vol, ai, complexity, engine_path, openai_api_key
+        )
+        ai_black = AIPlayer(
+            chess.BLACK, sound_vol, ai, complexity, engine_path, openai_api_key
+        )
         AI_PLAYERS = {
             PieceColour.White: ai_white,
             PieceColour.Black: ai_black,
