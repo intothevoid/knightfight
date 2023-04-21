@@ -1,6 +1,15 @@
+import re
 import openai
 import chess
 from helpers.log import LOGGER
+from typing import Optional
+
+"""
+Keep in mind that while this prompt provides clearer instructions, 
+GPT models are not specialized for chess analysis. Therefore, you might 
+still encounter some inaccuracies in the results. For optimal performance, 
+consider using a dedicated chess engine like Stockfish.
+"""
 
 
 class OpenAIAPIWrapper:
@@ -12,10 +21,10 @@ class OpenAIAPIWrapper:
         self,
         prompt,
         engine="text-davinci-002",
-        max_tokens=100,
+        max_tokens=150,
         n=1,
         stop=None,
-        temperature=0.5,
+        temperature=1.0,
     ):
         """
         Generate text using OpenAI.
@@ -33,21 +42,41 @@ class OpenAIAPIWrapper:
 
         return response.choices[0].text.strip()  # type: ignore
 
-    def get_next_chess_move(self, old_fen):
+    def get_next_chess_move(self, old_fen, color: chess.Color) -> Optional[chess.Move]:
         """
         Given a chess position in FEN notation, return the next chess move.
         """
-        prompt = f"Given the chess position in FEN notation: {old_fen}, what is the best move? Please provide the resulting FEN representation after the move."
-        new_fen = self._generate_text(prompt)
+        prompt = ""
+        colorstr = ""
+        if color == chess.WHITE:
+            colorstr = "white"
+        else:
+            colorstr = "black"
 
-        # Check if the move is legal
-        board = chess.Board(old_fen)
-        legal_moves = list(board.legal_moves)
+        prompt += (
+            f"Given the chess board position in FEN notation: {old_fen}, "
+            f"what is the next best legal move for the {colorstr} player? "
+            "Consider the existing positions of all pieces. Please provide "
+            "the move in Universal Chess Interface (UCI) format. It is very important "
+            "your response is a valid UCI move and has a minimum length of 4 characters."
+        )
 
-        for move in legal_moves:
-            temp_board = board.copy()
-            temp_board.push(move)
-            if temp_board.fen() == new_fen:
-                return move
+        # convert uci string to chess.Move
+        resp = self._generate_text(prompt)
+
+        resp_uci = ""
+        # sometimes OpenAI responds as a sentence instead of a UCI move string
+        if len(resp) > 5:
+            resp_uci = self.extract_move_from_response(resp)
+        else:
+            resp_uci = resp
+
+        if resp_uci and len(resp_uci) < 5:
+            return chess.Move.from_uci(resp_uci)
 
         return None
+
+    def extract_move_from_response(self, input_str):
+        pattern = re.compile(r"\b[a-h][1-8][a-h]?[1-8]?\b")
+        match = pattern.search(input_str)
+        return match.group(0) if match else ""

@@ -9,7 +9,7 @@ cpu:
   complexity: 3
   delay: 1000
   stockfish_path: assets/engines/stockfish
-  openai_api_key: ""
+  openai_api_key:
 game:
   font_name: clarity.ttf
   grid_font_size: 10
