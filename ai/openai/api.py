@@ -42,7 +42,9 @@ class OpenAIAPIWrapper:
 
         return response.choices[0].text.strip()  # type: ignore
 
-    def get_next_chess_move(self, old_fen, color: chess.Color) -> Optional[chess.Move]:
+    def get_next_chess_move(
+        self, legal_moves: list[chess.Move], old_fen: str, color: chess.Color
+    ) -> Optional[chess.Move]:
         """
         Given a chess position in FEN notation, return the next chess move.
         """
@@ -55,10 +57,9 @@ class OpenAIAPIWrapper:
 
         prompt += (
             f"Given the chess board position in FEN notation: {old_fen}, "
-            f"what is the next best legal move for the {colorstr} player? "
-            "Consider the existing positions of all pieces. Please provide "
-            "the move in Universal Chess Interface (UCI) format. It is very important "
-            "your response is a valid UCI move and has a minimum length of 4 characters."
+            f"what is the next best move for the {colorstr} player? "
+            f"Please reply in UCI string of 4 characters."
+            f"Please select one of the following moves: {str(legal_moves)}\n"
         )
 
         # convert uci string to chess.Move

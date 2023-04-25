@@ -47,7 +47,7 @@ class AIPlayer:
             elif self.ai == "openai":
                 openai = OpenAIAPIWrapper(self.openai_api_key)
                 fen = board.state.engine_state.board_fen()
-                move = openai.get_next_chess_move(fen, self.color)
+                move = openai.get_next_chess_move(legal_moves, fen, self.color)
             else:
                 move = random.choice(legal_moves)
 
