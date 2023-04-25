@@ -51,7 +51,7 @@ pip install -r requirements.txt
 python3 main.py
 ```
 
-## Optional - Install Stockfish (Powerful Chess Engine)
+## Optional - Use Stockfish (Powerful Chess Engine)
 
 If you would like to play against a stronger CPU player, you can install Stockfish. Stockfish is a free, open source chess engine. It is the strongest chess engine in the world. 
 
@@ -71,7 +71,7 @@ cpu:
     stockfish_path: assets/engines/stockfish
 ```
 
-## Optional - Install OpenAI API (GPT 3.5 powered chess engine)
+## Optional - Use OpenAI API (GPT 3.5 powered chess engine)
 
 If you would like to play against OpenAI's GPT 3.5 powered chess engine, you can install the OpenAI API. OpenAI is a powerful AI API that can be used to generate text, images, and more.
 
@@ -92,7 +92,7 @@ cpu:
 
 PyGame https://www.pygame.org/
 
-<img src="https://raw.githubusercontent.com/intothevoid/knightfight/main/assets/images/openai.png" height="25%" width="25%"></img>
+<img src="https://raw.githubusercontent.com/intothevoid/knightfight/main/assets/images/openai.jpg" height="25%" width="25%"></img>
 
 OpenAI https://www.ai.com/
 
