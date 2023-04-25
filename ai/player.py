@@ -5,6 +5,7 @@ from helpers.log import LOGGER
 from knightfight.board import Board
 from sound.playback import play_sound
 from ai.engines import piece_squares, piece_squares2, stockfish
+from ai.openai.api import OpenAIAPIWrapper
 
 
 class AIPlayer:
@@ -15,6 +16,7 @@ class AIPlayer:
         ai: str = "basic",
         complexity: int = 1,
         engine_path: str = "",
+        openai_api_key: str = "",
     ):
         self.color = color
         self.sound_vol = sound_vol
@@ -24,6 +26,7 @@ class AIPlayer:
         self.complexity = complexity
         self.engine_path = engine_path
         self.engine = None
+        self.openai_api_key = openai_api_key
 
     def move(self, board: Board) -> bool:
         legal_moves = list(board.state.engine_state.legal_moves)
@@ -41,6 +44,10 @@ class AIPlayer:
                 self.engine = sfengine
                 move = sfengine.get_informed_move(board.state.engine_state)
                 sfengine.quit()
+            elif self.ai == "openai":
+                openai = OpenAIAPIWrapper(self.openai_api_key)
+                fen = board.state.engine_state.board_fen()
+                move = openai.get_next_chess_move(legal_moves, fen, self.color)
             else:
                 move = random.choice(legal_moves)
 
