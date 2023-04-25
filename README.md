@@ -30,6 +30,7 @@ Grid lines and positions overlay (configurable)
 10. Retro title menu with options to save and load games
 11. Smarter CPU player with multiple chess engines supported:
     - Stockfish
+    - OpenAI API
     - Piece Squares (Uses minimax algorithm)
     - Piece Squares v2 (Uses minimax algorithm) - Default
     - Basic Random Moves
@@ -70,11 +71,30 @@ cpu:
     stockfish_path: assets/engines/stockfish
 ```
 
+## Optional - Install OpenAI API (GPT 3.5 powered chess engine)
+
+If you would like to play against OpenAI's GPT 3.5 powered chess engine, you can install the OpenAI API. OpenAI is a powerful AI API that can be used to generate text, images, and more.
+
+1. Set up an OpenAI account at https://beta.openai.com/
+2. Copy your API key to config.yml as shown below OR setup an environment variable called OPENAI_API_KEY
+3. Update the path in config.yml as shown below (chess engine option)
+
+### config.yml (OpenAI settings)
+```
+cpu:
+    ai: openai
+    openai_api_key: <your api key here>
+```
+
 ## Powered By
 
 <img src="https://raw.githubusercontent.com/intothevoid/knightfight/main/assets/images/pygame.png" height="25%" width="25%"></img>
 
 PyGame https://www.pygame.org/
+
+<img src="https://raw.githubusercontent.com/intothevoid/knightfight/main/assets/images/openai.png" height="25%" width="25%"></img>
+
+OpenAI https://www.ai.com/
 
 <img src="https://raw.githubusercontent.com/intothevoid/knightfight/main/assets/images/stockfish.png" height="25%" width="25%"></img>
 
