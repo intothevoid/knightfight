@@ -25,7 +25,7 @@ Grid lines and positions overlay (configurable)
 5. Debug mode to highlight positions and grid
 6. Undo last move (press Ctrl+Z)
 7. Change board styles
-8. Multiplayer - coming soon!
+8. Multiplayer API available. See https://www.github.com/intothevoid/chessapi for details.
 9. Animated CPU piece moves
 10. Retro title menu with options to save and load games
 11. Smarter CPU player with multiple chess engines supported:
